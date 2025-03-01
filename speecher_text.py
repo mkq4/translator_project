@@ -3,7 +3,7 @@ import simpleaudio as sa
 import pygame
 import os
 
-tts = gTTS('глупая задница ниггер', lang='ru')
+tts = gTTS('привет мир', lang='ru')
 audio_file = 'hello.mp3'
 tts.save(audio_file)
 
