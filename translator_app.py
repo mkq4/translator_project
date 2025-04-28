@@ -71,75 +71,179 @@ class LanguageSelector(QWidget):
         super().__init__(parent)
         self.languages = languages
         self.setup_ui()
+        self.setStyleSheet("background-color: #282828;")
 
     def setup_ui(self):
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(20)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(20)
+
+        # Добавляем заголовок и кнопку закрытия
+        header = QHBoxLayout()
+        title = QLabel("Выбор языка")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
+        
+        close_btn = IconButton("icons/close.svg")
+        close_btn.clicked.connect(lambda: self.parent().setCurrentWidget(self.parent().parent().main_screen))
+        
+        header.addWidget(title)
+        header.addStretch()
+        header.addWidget(close_btn)
+        main_layout.addLayout(header)
+
+        # Основной контейнер для панелей выбора языка
+        lang_container = QHBoxLayout()
+        lang_container.setSpacing(20)
 
         # Левая панель
         left_panel = QVBoxLayout()
+        search_container_left = QFrame()
+        search_container_left.setStyleSheet("""
+            QFrame {
+                background-color: #3B3B3B;
+                border-radius: 8px;
+                padding: 5px;
+            }
+        """)
+        search_layout_left = QHBoxLayout(search_container_left)
+        search_layout_left.setContentsMargins(10, 0, 10, 0)
+        
+        search_icon_left = QLabel()
+        search_icon_left.setPixmap(QIcon("icons/search.svg").pixmap(QSize(20, 20)))
+        search_layout_left.addWidget(search_icon_left)
+        
         self.left_search = QLineEdit()
         self.left_search.setPlaceholderText("Поиск языка...")
+        self.left_search.setMinimumHeight(45)
         self.left_search.textChanged.connect(self.filter_left_languages)
-        left_panel.addWidget(self.left_search)
+        search_layout_left.addWidget(self.left_search)
+        left_panel.addWidget(search_container_left)
 
         self.left_scroll = QScrollArea()
         self.left_scroll.setWidgetResizable(True)
+        self.left_scroll.setStyleSheet("""
+            QScrollArea {
+                background-color: #3B3B3B;
+                border: none;
+                border-radius: 8px;
+            }
+            QScrollArea > QWidget > QWidget {
+                background-color: transparent;
+            }
+        """)
+        
         self.left_languages_widget = QWidget()
         self.left_languages_layout = QVBoxLayout(self.left_languages_widget)
-        self.left_languages_layout.setAlignment(Qt.AlignTop)  # Прибиваем к верху
+        self.left_languages_layout.setAlignment(Qt.AlignTop)
+        self.left_languages_layout.setSpacing(8)
+        self.left_languages_layout.setContentsMargins(8, 8, 8, 8)
         self.left_scroll.setWidget(self.left_languages_widget)
         left_panel.addWidget(self.left_scroll)
 
         # Правая панель
         right_panel = QVBoxLayout()
+        search_container_right = QFrame()
+        search_container_right.setStyleSheet("""
+            QFrame {
+                background-color: #3B3B3B;
+                border-radius: 8px;
+                padding: 5px 5px 5px;
+            }
+        """)
+        search_layout_right = QHBoxLayout(search_container_right)
+        search_layout_right.setContentsMargins(10, 0, 10, 0)
+        
+        search_icon_right = QLabel()
+        search_icon_right.setPixmap(QIcon("icons/search.svg").pixmap(QSize(20, 20)))
+        search_layout_right.addWidget(search_icon_right)
+        
         self.right_search = QLineEdit()
         self.right_search.setPlaceholderText("Поиск языка...")
+        self.right_search.setMinimumHeight(45)
         self.right_search.textChanged.connect(self.filter_right_languages)
-        right_panel.addWidget(self.right_search)
+        search_layout_right.addWidget(self.right_search)
+        right_panel.addWidget(search_container_right)
 
         self.right_scroll = QScrollArea()
         self.right_scroll.setWidgetResizable(True)
+        self.right_scroll.setStyleSheet("""
+            QScrollArea {
+                background-color: #3B3B3B;
+                border: none;
+                border-radius: 8px;
+            }
+            QScrollArea > QWidget > QWidget {
+                background-color: transparent;
+            }
+        """)
+        
         self.right_languages_widget = QWidget()
         self.right_languages_layout = QVBoxLayout(self.right_languages_widget)
-        self.right_languages_layout.setAlignment(Qt.AlignTop)  # Прибиваем к верху
+        self.right_languages_layout.setAlignment(Qt.AlignTop)
+        self.right_languages_layout.setSpacing(8)
+        self.right_languages_layout.setContentsMargins(8, 8, 8, 8)
         self.right_scroll.setWidget(self.right_languages_widget)
         right_panel.addWidget(self.right_scroll)
 
-        # Добавляем панели в основной layout
-        layout.addLayout(left_panel)
-        layout.addLayout(right_panel)
+        # Добавляем панели в контейнер
+        lang_container.addLayout(left_panel)
+        lang_container.addLayout(right_panel)
+        main_layout.addLayout(lang_container)
 
         # Заполняем списки языков
         self.populate_languages()
 
         # Стилизация
         self.setStyleSheet("""
+            QWidget {
+                background-color: #282828;
+            }
             QLineEdit {
-                background-color: #333333;
+                background-color: transparent;
                 color: white;
                 border: none;
-                border-radius: 4px;
-                padding: 8px;
-                font-size: 14px;
+                border-left: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 8px 8px 8px 16px;
+                font-size: 16px;
+                margin-left: 8px;
             }
-            QScrollArea {
-                background-color: #333333;
-                border: none;
-                border-radius: 4px;
+            QLineEdit::placeholder {
+                color: white;
             }
             QPushButton {
-                background-color: #333333;
+                background-color: transparent;
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 8px;
                 padding: 12px;
-                text-align: left;
-                font-size: 14px;
+                text-align: center;
+                font-size: 16px;
+                font-family: monospace;
             }
             QPushButton:hover {
-                background-color: #444444;
+                background-color: rgba(255, 255, 255, 0.1);
+                color: #4CAF50;
+            }
+            QLabel {
+                color: white;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: transparent;
+                width: 8px;
+                margin: 0;
+            }
+            QScrollBar::handle:vertical {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+                min-height: 20px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                border: none;
+                background: none;
+            }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
             }
         """)
 
@@ -149,17 +253,22 @@ class LanguageSelector(QWidget):
             left_btn = QPushButton(name.capitalize())
             left_btn.setProperty('code', code)
             left_btn.setCursor(QCursor(Qt.PointingHandCursor))
-            left_btn.clicked.connect(lambda checked, c=code, n=name: 
-                                   self.language_selected.emit(c, n.capitalize()))
+            left_btn.clicked.connect(lambda checked, c=code, n=name: self.on_language_selected(c, n))
             self.left_languages_layout.addWidget(left_btn)
 
             # Правая панель
             right_btn = QPushButton(name.capitalize())
             right_btn.setProperty('code', code)
             right_btn.setCursor(QCursor(Qt.PointingHandCursor))
-            right_btn.clicked.connect(lambda checked, c=code, n=name: 
-                                    self.language_selected.emit(c, n.capitalize()))
+            right_btn.clicked.connect(lambda checked, c=code, n=name: self.on_language_selected(c, n))
             self.right_languages_layout.addWidget(right_btn)
+
+    def on_language_selected(self, code, name):
+        # Сбрасываем текст в полях поиска
+        self.left_search.clear()
+        self.right_search.clear()
+        # Отправляем сигнал о выборе языка
+        self.language_selected.emit(code, name.capitalize())
 
     def filter_languages(self, text, layout):
         text = text.lower()
