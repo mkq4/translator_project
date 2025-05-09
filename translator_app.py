@@ -76,10 +76,14 @@ class TranslatorApp(QMainWindow):
         self.setup_history_screen()
         self.stack.addWidget(self.history_screen)
         
-        # Создаем экран выбора языков
-        self.language_screen = QWidget()
-        self.setup_language_screen()
-        self.stack.addWidget(self.language_screen)
+        # Создаем экраны выбора языков
+        self.source_language_screen = QWidget()
+        self.setup_language_screen(self.source_language_screen, 'source')
+        self.stack.addWidget(self.source_language_screen)
+        
+        self.target_language_screen = QWidget()
+        self.setup_language_screen(self.target_language_screen, 'target')
+        self.stack.addWidget(self.target_language_screen)
         
         # Показываем главный экран
         self.stack.setCurrentWidget(self.main_screen)
@@ -111,7 +115,7 @@ class TranslatorApp(QMainWindow):
         top_panel = QHBoxLayout()
         
         # Кнопки выбора языков
-        self.source_lang_btn = QPushButton(LANGUAGES['en'])
+        self.source_lang_btn = QPushButton('Английский' if self.current_language == 'ru' else 'English')
         self.source_lang_btn.clicked.connect(lambda: self.show_language_selector('source'))
         
         # Кнопка смены языков
@@ -119,7 +123,7 @@ class TranslatorApp(QMainWindow):
         swap_button.setFixedWidth(40)
         swap_button.clicked.connect(self.swap_languages)
         
-        self.target_lang_btn = QPushButton(LANGUAGES['ru'])
+        self.target_lang_btn = QPushButton('Русский' if self.current_language == 'ru' else 'Russian')
         self.target_lang_btn.clicked.connect(lambda: self.show_language_selector('target'))
         
         # Создаем переключатель языка интерфейса
@@ -221,7 +225,8 @@ class TranslatorApp(QMainWindow):
         current_screen = self.stack.currentWidget()
         
         # Быстро переключаемся между экранами для обновления интерфейса
-        self.stack.setCurrentWidget(self.language_screen)
+        self.stack.setCurrentWidget(self.source_language_screen)
+        self.stack.setCurrentWidget(self.target_language_screen)
         self.stack.setCurrentWidget(self.history_screen)
         self.stack.setCurrentWidget(self.main_screen)
         
@@ -255,7 +260,8 @@ class TranslatorApp(QMainWindow):
         # Принудительно обновляем все виджеты
         self.main_screen.update()
         self.history_screen.update()
-        self.language_screen.update()
+        self.source_language_screen.update()
+        self.target_language_screen.update()
         self.source_text.update()
         self.target_text.update()
 
@@ -282,17 +288,18 @@ class TranslatorApp(QMainWindow):
                 if widget.text() in [UI_TRANSLATIONS['ru']['clear_history'], UI_TRANSLATIONS['en']['clear_history']]:
                     widget.setText(UI_TRANSLATIONS[self.current_language]['clear_history'])
         
-        # Обновляем заголовки и тексты в экране выбора языков
-        if hasattr(self, 'language_screen'):
-            for widget in self.language_screen.findChildren(QLabel):
-                if widget.text() in [UI_TRANSLATIONS['ru']['language_selector_title'], UI_TRANSLATIONS['en']['language_selector_title']]:
-                    widget.setText(UI_TRANSLATIONS[self.current_language]['language_selector_title'])
-                elif widget.text() in [UI_TRANSLATIONS['ru']['source_language'], UI_TRANSLATIONS['en']['source_language']]:
+        # Обновляем заголовки и тексты в экранах выбора языков
+        if hasattr(self, 'source_language_screen') and hasattr(self, 'target_language_screen'):
+            for widget in self.source_language_screen.findChildren(QLabel):
+                if widget.text() in [UI_TRANSLATIONS['ru']['source_language'], UI_TRANSLATIONS['en']['source_language']]:
                     widget.setText(UI_TRANSLATIONS[self.current_language]['source_language'])
                 elif widget.text() in [UI_TRANSLATIONS['ru']['target_language'], UI_TRANSLATIONS['en']['target_language']]:
                     widget.setText(UI_TRANSLATIONS[self.current_language]['target_language'])
             
-            for widget in self.language_screen.findChildren(QLineEdit):
+            for widget in self.source_language_screen.findChildren(QLineEdit):
+                widget.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
+            
+            for widget in self.target_language_screen.findChildren(QLineEdit):
                 widget.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
         
         # Обновляем тексты в диалогах подтверждения
@@ -338,14 +345,14 @@ class TranslatorApp(QMainWindow):
         scroll.setWidget(self.history_container)
         layout.addWidget(scroll)
 
-    def setup_language_screen(self):
-        layout = QVBoxLayout(self.language_screen)
+    def setup_language_screen(self, screen, target):
+        layout = QVBoxLayout(screen)
         
         # Создаем верхнюю панель
         top_panel = QHBoxLayout()
         
         # Заголовок
-        title = QLabel(UI_TRANSLATIONS[self.current_language]['language_selector_title'])
+        title = QLabel(UI_TRANSLATIONS[self.current_language][f'{target}_language'])
         title.setStyleSheet("font-size: 18px; font-weight: bold;")
         top_panel.addWidget(title)
         
@@ -357,56 +364,38 @@ class TranslatorApp(QMainWindow):
         
         layout.addLayout(top_panel)
         
-        # Создаем горизонтальный layout для списков языков
-        languages_panel = QHBoxLayout()
+        # Создаем вертикальный layout для списка языков
+        language_panel = QVBoxLayout()
         
-        # Панель для исходного языка
-        source_panel = QVBoxLayout()
-        source_label = QLabel(UI_TRANSLATIONS[self.current_language]['source_language'])
-        source_label.setStyleSheet("font-weight: bold;")
-        source_panel.addWidget(source_label)
+        # Поле поиска
+        search = QLineEdit()
+        search.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
+        search.textChanged.connect(lambda: self.filter_languages(target))
+        language_panel.addWidget(search)
         
-        # Поле поиска для исходного языка
-        self.source_search = QLineEdit()
-        self.source_search.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
-        self.source_search.textChanged.connect(lambda: self.filter_languages('source'))
-        source_panel.addWidget(self.source_search)
+        # Список языков
+        list_widget = QListWidget()
+        list_widget.itemClicked.connect(lambda item: self.select_language(target, item))
+        language_panel.addWidget(list_widget)
         
-        # Список языков для исходного языка
-        self.source_list = QListWidget()
-        self.source_list.itemClicked.connect(lambda item: self.select_language('source', item))
-        source_panel.addWidget(self.source_list)
+        layout.addLayout(language_panel)
         
-        # Панель для целевого языка
-        target_panel = QVBoxLayout()
-        target_label = QLabel(UI_TRANSLATIONS[self.current_language]['target_language'])
-        target_label.setStyleSheet("font-weight: bold;")
-        target_panel.addWidget(target_label)
+        # Сохраняем ссылки на виджеты
+        if target == 'source':
+            self.source_search = search
+            self.source_list = list_widget
+        else:
+            self.target_search = search
+            self.target_list = list_widget
         
-        # Поле поиска для целевого языка
-        self.target_search = QLineEdit()
-        self.target_search.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
-        self.target_search.textChanged.connect(lambda: self.filter_languages('target'))
-        target_panel.addWidget(self.target_search)
-        
-        # Список языков для целевого языка
-        self.target_list = QListWidget()
-        self.target_list.itemClicked.connect(lambda item: self.select_language('target', item))
-        target_panel.addWidget(self.target_list)
-        
-        languages_panel.addLayout(source_panel)
-        languages_panel.addLayout(target_panel)
-        layout.addLayout(languages_panel)
-        
-        # Заполняем списки языков
-        self.populate_language_lists()
+        # Заполняем список языков для текущего экрана
+        self.populate_language_list(target)
 
-    def populate_language_lists(self):
-        # Очищаем списки
-        self.source_list.clear()
-        self.target_list.clear()
+    def populate_language_list(self, target):
+        list_widget = self.source_list if target == 'source' else self.target_list
+        list_widget.clear()
         
-        # Добавляем языки в списки
+        # Добавляем языки в список
         for code, name in LANGUAGES.items():
             # Используем локализованные названия языков
             localized_name = name
@@ -475,21 +464,13 @@ class TranslatorApp(QMainWindow):
                 elif code == 'vi':
                     localized_name = 'Вьетнамский'
             
-            self.source_list.addItem(localized_name)
-            self.target_list.addItem(localized_name)
+            list_widget.addItem(localized_name)
         
-        # Устанавливаем текущие выбранные языки
-        current_source = self.source_lang_btn.text()
-        current_target = self.target_lang_btn.text()
-        
-        for i in range(self.source_list.count()):
-            if self.source_list.item(i).text() == current_source:
-                self.source_list.setCurrentRow(i)
-                break
-                
-        for i in range(self.target_list.count()):
-            if self.target_list.item(i).text() == current_target:
-                self.target_list.setCurrentRow(i)
+        # Устанавливаем текущий выбранный язык
+        current_lang = self.source_lang_btn.text() if target == 'source' else self.target_lang_btn.text()
+        for i in range(list_widget.count()):
+            if list_widget.item(i).text() == current_lang:
+                list_widget.setCurrentRow(i)
                 break
 
     def filter_languages(self, target):
@@ -502,20 +483,20 @@ class TranslatorApp(QMainWindow):
 
     def show_language_selector(self, target):
         self.current_language_target = target
-        self.populate_language_lists()
-        # Обновляем заголовки и тексты в экране выбора языков
-        for widget in self.language_screen.findChildren(QLabel):
-            if widget.text() in [UI_TRANSLATIONS['ru']['language_selector_title'], UI_TRANSLATIONS['en']['language_selector_title']]:
-                widget.setText(UI_TRANSLATIONS[self.current_language]['language_selector_title'])
-            elif widget.text() in [UI_TRANSLATIONS['ru']['source_language'], UI_TRANSLATIONS['en']['source_language']]:
-                widget.setText(UI_TRANSLATIONS[self.current_language]['source_language'])
-            elif widget.text() in [UI_TRANSLATIONS['ru']['target_language'], UI_TRANSLATIONS['en']['target_language']]:
-                widget.setText(UI_TRANSLATIONS[self.current_language]['target_language'])
+        # Выбираем нужный экран в зависимости от target
+        screen = self.source_language_screen if target == 'source' else self.target_language_screen
+        self.stack.setCurrentWidget(screen)
         
-        for widget in self.language_screen.findChildren(QLineEdit):
+        # Обновляем заголовок и тексты
+        for widget in screen.findChildren(QLabel):
+            if widget.text() in [UI_TRANSLATIONS['ru'][f'{target}_language'], UI_TRANSLATIONS['en'][f'{target}_language']]:
+                widget.setText(UI_TRANSLATIONS[self.current_language][f'{target}_language'])
+        
+        for widget in screen.findChildren(QLineEdit):
             widget.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
         
-        self.stack.setCurrentWidget(self.language_screen)
+        # Обновляем список языков
+        self.populate_language_list(target)
 
     def select_language(self, target, item):
         if target == 'source':
@@ -560,8 +541,30 @@ class TranslatorApp(QMainWindow):
             return
 
         # Получаем коды языков
-        source_lang = next(code for code, name in LANGUAGES.items() if name == self.source_lang_btn.text())
-        target_lang = next(code for code, name in LANGUAGES.items() if name == self.target_lang_btn.text())
+        source_lang = None
+        target_lang = None
+        
+        # Ищем код языка в словаре, учитывая текущий язык интерфейса
+        for code, name in LANGUAGES.items():
+            if self.current_language == 'ru':
+                # Для русского интерфейса ищем русские названия
+                if name == self.source_lang_btn.text():
+                    source_lang = code.split('_')[0]  # Берем только код языка без суффикса
+                if name == self.target_lang_btn.text():
+                    target_lang = code.split('_')[0]
+            else:
+                # Для английского интерфейса ищем английские названия
+                if name == self.source_lang_btn.text():
+                    source_lang = code
+                if name == self.target_lang_btn.text():
+                    target_lang = code
+        
+        if not source_lang or not target_lang:
+            self.statusBar.showMessage(
+                UI_TRANSLATIONS[self.current_language]['translation_error'].format('Language not found'), 
+                3000
+            )
+            return
 
         # Если уже есть активный перевод, отменяем его
         if self.current_thread and self.current_thread.isRunning():
@@ -608,9 +611,14 @@ class TranslatorApp(QMainWindow):
             # Создаем временный файл
             with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
                 self.current_audio_file = temp_file.name
-                
+            
+            # Преобразуем код языка для gTTS
+            gtts_lang = lang
+            if lang.endswith('_ru'):
+                gtts_lang = lang.split('_')[0]
+            
             # Создаем и сохраняем аудио
-            tts = gTTS(text=text, lang=lang)
+            tts = gTTS(text=text, lang=gtts_lang)
             tts.save(self.current_audio_file)
             
             # Воспроизводим
