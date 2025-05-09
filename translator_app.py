@@ -111,37 +111,21 @@ class TranslatorApp(QMainWindow):
         # Создаем центральный виджет и главный layout
         main_layout = QVBoxLayout(self.main_screen)
         
-        # Создаем верхнюю панель с выбором языков
-        top_panel = QHBoxLayout()
-        
-        # Кнопки выбора языков
+        # --- Первая строка: только языки, строго по центру ---
+        lang_switcher_panel = QHBoxLayout()
+        lang_switcher_panel.addStretch()
         self.source_lang_btn = QPushButton('Английский' if self.current_language == 'ru' else 'English')
         self.source_lang_btn.clicked.connect(lambda: self.show_language_selector('source'))
-        
-        # Кнопка смены языков
         swap_button = QPushButton("⇄")
         swap_button.setFixedWidth(40)
         swap_button.clicked.connect(self.swap_languages)
-        
         self.target_lang_btn = QPushButton('Русский' if self.current_language == 'ru' else 'Russian')
         self.target_lang_btn.clicked.connect(lambda: self.show_language_selector('target'))
-        
-        # Создаем переключатель языка интерфейса
-        lang_panel = QHBoxLayout()
-        lang_label = QLabel(UI_TRANSLATIONS[self.current_language]['interface_language'])
-        self.lang_toggle = QComboBox()
-        self.lang_toggle.addItems(['Русский', 'English'])
-        self.lang_toggle.setCurrentText('Русский' if self.current_language == 'ru' else 'English')
-        self.lang_toggle.currentTextChanged.connect(self.toggle_interface_language)
-        lang_panel.addWidget(lang_label)
-        lang_panel.addWidget(self.lang_toggle)
-        
-        top_panel.addWidget(self.source_lang_btn)
-        top_panel.addWidget(swap_button)
-        top_panel.addWidget(self.target_lang_btn)
-        top_panel.addStretch()
-        top_panel.addLayout(lang_panel)
-        main_layout.addLayout(top_panel)
+        lang_switcher_panel.addWidget(self.source_lang_btn)
+        lang_switcher_panel.addWidget(swap_button)
+        lang_switcher_panel.addWidget(self.target_lang_btn)
+        lang_switcher_panel.addStretch()
+        main_layout.addLayout(lang_switcher_panel)
 
         # Создаем горизонтальный layout для текстовых полей и кнопок
         text_panel = QHBoxLayout()
@@ -213,57 +197,55 @@ class TranslatorApp(QMainWindow):
         # Добавляем горизонтальный layout в главный layout
         main_layout.addLayout(text_panel)
         
-        # Создаем статусбар
+        # --- Статусбар с двумя кнопками для выбора языка интерфейса ---
         self.statusBar = QStatusBar()
+        self.statusBar.setMaximumHeight(30)
         self.setStatusBar(self.statusBar)
+        lang_label = QLabel(UI_TRANSLATIONS[self.current_language]['interface_language'])
+        lang_label.setStyleSheet('font-size: 11px; padding-right: 4px;')
+        self.statusBar.addPermanentWidget(lang_label)
+        # Кнопки для выбора языка интерфейса
+        self.lang_btn_ru = QPushButton('Русский')
+        self.lang_btn_en = QPushButton('English')
+        self.lang_btn_ru.setStyleSheet('font-size: 11px; min-width: 60px;')
+        self.lang_btn_en.setStyleSheet('font-size: 11px; min-width: 60px;')
+        self.lang_btn_ru.clicked.connect(lambda: self.set_interface_language('ru'))
+        self.lang_btn_en.clicked.connect(lambda: self.set_interface_language('en'))
+        self.statusBar.addPermanentWidget(self.lang_btn_ru)
+        self.statusBar.addPermanentWidget(self.lang_btn_en)
+        self.update_lang_buttons()
 
-    def toggle_interface_language(self, lang):
-        self.current_language = 'ru' if lang == 'Русский' else 'en'
+    def set_interface_language(self, lang_code):
+        if lang_code == 'ru':
+            self.current_language = 'ru'
+            self.lang_btn_ru.setDisabled(True)
+            self.lang_btn_en.setDisabled(False)
+        else:
+            self.current_language = 'en'
+            self.lang_btn_ru.setDisabled(False)
+            self.lang_btn_en.setDisabled(True)
         self.update_interface_language()
-        
-        # Сохраняем текущий экран
+        # Быстро обновляем экраны
         current_screen = self.stack.currentWidget()
-        
-        # Быстро переключаемся между экранами для обновления интерфейса
         self.stack.setCurrentWidget(self.source_language_screen)
         self.stack.setCurrentWidget(self.target_language_screen)
         self.stack.setCurrentWidget(self.history_screen)
         self.stack.setCurrentWidget(self.main_screen)
-        
-        # Обновляем кнопки выбора языка в заголовке
-        current_source = self.source_lang_btn.text()
-        current_target = self.target_lang_btn.text()
-        
-        # Обновляем названия языков в зависимости от выбранного языка интерфейса
-        if self.current_language == 'ru':
-            if current_source == 'English':
-                self.source_lang_btn.setText('Английский')
-            elif current_source == 'Russian':
-                self.source_lang_btn.setText('Русский')
-            if current_target == 'English':
-                self.target_lang_btn.setText('Английский')
-            elif current_target == 'Russian':
-                self.target_lang_btn.setText('Русский')
-        else:
-            if current_source == 'Английский':
-                self.source_lang_btn.setText('English')
-            elif current_source == 'Русский':
-                self.source_lang_btn.setText('Russian')
-            if current_target == 'Английский':
-                self.target_lang_btn.setText('English')
-            elif current_target == 'Русский':
-                self.target_lang_btn.setText('Russian')
-        
-        # Возвращаемся на исходный экран
-        self.stack.setCurrentWidget(current_screen)
-        
-        # Принудительно обновляем все виджеты
         self.main_screen.update()
         self.history_screen.update()
         self.source_language_screen.update()
         self.target_language_screen.update()
         self.source_text.update()
         self.target_text.update()
+        self.update_lang_buttons()
+
+    def update_lang_buttons(self):
+        if self.current_language == 'ru':
+            self.lang_btn_ru.setDisabled(True)
+            self.lang_btn_en.setDisabled(False)
+        else:
+            self.lang_btn_ru.setDisabled(False)
+            self.lang_btn_en.setDisabled(True)
 
     def update_interface_language(self):
         # Обновляем заголовок окна
