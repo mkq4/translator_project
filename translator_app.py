@@ -45,7 +45,7 @@ class TranslatorApp(QMainWindow):
         super().__init__()
         self.current_language = 'ru'  # По умолчанию русский
         self.setWindowTitle(UI_TRANSLATIONS[self.current_language]['window_title'])
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 800, 400)
         
         # Инициализация pygame для воспроизведения звука
         pygame.mixer.init()
