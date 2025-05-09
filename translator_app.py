@@ -350,6 +350,28 @@ class TranslatorApp(QMainWindow):
             self.current_language = 'en'
             self.lang_btn_ru.setDisabled(False)
             self.lang_btn_en.setDisabled(True)
+        
+        # Сохраняем текущие языки
+        current_source = self.source_lang_btn.text()
+        current_target = self.target_lang_btn.text()
+        
+        # Находим коды языков по текущим названиям
+        source_code = None
+        target_code = None
+        
+        # Ищем коды для обоих языков интерфейса
+        for code, names in LANGUAGE_TRANSLATIONS.items():
+            if names['ru'] == current_source or names['en'] == current_source:
+                source_code = code
+            if names['ru'] == current_target or names['en'] == current_target:
+                target_code = code
+        
+        # Устанавливаем языки с новыми переводами
+        if source_code:
+            self.source_lang_btn.setText(LANGUAGE_TRANSLATIONS[source_code][self.current_language])
+        if target_code:
+            self.target_lang_btn.setText(LANGUAGE_TRANSLATIONS[target_code][self.current_language])
+        
         self.update_interface_language()
         # Быстро обновляем экраны
         current_screen = self.stack.currentWidget()
