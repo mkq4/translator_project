@@ -16,6 +16,117 @@ from datetime import datetime
 import pyperclip
 from translations import UI_TRANSLATIONS, LANGUAGES
 
+LANGUAGE_TRANSLATIONS = {
+    'af': {'ru': 'Африкаанс', 'en': 'Afrikaans'},
+    'sq': {'ru': 'Албанский', 'en': 'Albanian'},
+    'am': {'ru': 'Амхарский', 'en': 'Amharic'},
+    'ar': {'ru': 'Арабский', 'en': 'Arabic'},
+    'hy': {'ru': 'Армянский', 'en': 'Armenian'},
+    'az': {'ru': 'Азербайджанский', 'en': 'Azerbaijani'},
+    'eu': {'ru': 'Баскский', 'en': 'Basque'},
+    'be': {'ru': 'Белорусский', 'en': 'Belarusian'},
+    'bn': {'ru': 'Бенгальский', 'en': 'Bengali'},
+    'bs': {'ru': 'Боснийский', 'en': 'Bosnian'},
+    'bg': {'ru': 'Болгарский', 'en': 'Bulgarian'},
+    'ca': {'ru': 'Каталанский', 'en': 'Catalan'},
+    'ceb': {'ru': 'Себуано', 'en': 'Cebuano'},
+    'zh-cn': {'ru': 'Китайский (упрощенный)', 'en': 'Chinese (Simplified)'},
+    'zh-tw': {'ru': 'Китайский (традиционный)', 'en': 'Chinese (Traditional)'},
+    'co': {'ru': 'Корсиканский', 'en': 'Corsican'},
+    'hr': {'ru': 'Хорватский', 'en': 'Croatian'},
+    'cs': {'ru': 'Чешский', 'en': 'Czech'},
+    'da': {'ru': 'Датский', 'en': 'Danish'},
+    'nl': {'ru': 'Голландский', 'en': 'Dutch'},
+    'en': {'ru': 'Английский', 'en': 'English'},
+    'eo': {'ru': 'Эсперанто', 'en': 'Esperanto'},
+    'et': {'ru': 'Эстонский', 'en': 'Estonian'},
+    'fi': {'ru': 'Финский', 'en': 'Finnish'},
+    'fr': {'ru': 'Французский', 'en': 'French'},
+    'fy': {'ru': 'Фризский', 'en': 'Frisian'},
+    'gl': {'ru': 'Галисийский', 'en': 'Galician'},
+    'ka': {'ru': 'Грузинский', 'en': 'Georgian'},
+    'de': {'ru': 'Немецкий', 'en': 'German'},
+    'el': {'ru': 'Греческий', 'en': 'Greek'},
+    'gu': {'ru': 'Гуджарати', 'en': 'Gujarati'},
+    'ht': {'ru': 'Гаитянский креольский', 'en': 'Haitian Creole'},
+    'ha': {'ru': 'Хауса', 'en': 'Hausa'},
+    'haw': {'ru': 'Гавайский', 'en': 'Hawaiian'},
+    'he': {'ru': 'Иврит', 'en': 'Hebrew'},
+    'hi': {'ru': 'Хинди', 'en': 'Hindi'},
+    'hmn': {'ru': 'Хмонг', 'en': 'Hmong'},
+    'hu': {'ru': 'Венгерский', 'en': 'Hungarian'},
+    'is': {'ru': 'Исландский', 'en': 'Icelandic'},
+    'ig': {'ru': 'Игбо', 'en': 'Igbo'},
+    'id': {'ru': 'Индонезийский', 'en': 'Indonesian'},
+    'ga': {'ru': 'Ирландский', 'en': 'Irish'},
+    'it': {'ru': 'Итальянский', 'en': 'Italian'},
+    'ja': {'ru': 'Японский', 'en': 'Japanese'},
+    'jw': {'ru': 'Яванский', 'en': 'Javanese'},
+    'kn': {'ru': 'Каннада', 'en': 'Kannada'},
+    'kk': {'ru': 'Казахский', 'en': 'Kazakh'},
+    'km': {'ru': 'Кхмерский', 'en': 'Khmer'},
+    'ko': {'ru': 'Корейский', 'en': 'Korean'},
+    'ku': {'ru': 'Курдский', 'en': 'Kurdish'},
+    'ky': {'ru': 'Киргизский', 'en': 'Kyrgyz'},
+    'lo': {'ru': 'Лаосский', 'en': 'Lao'},
+    'la': {'ru': 'Латинский', 'en': 'Latin'},
+    'lv': {'ru': 'Латышский', 'en': 'Latvian'},
+    'lt': {'ru': 'Литовский', 'en': 'Lithuanian'},
+    'lb': {'ru': 'Люксембургский', 'en': 'Luxembourgish'},
+    'mk': {'ru': 'Македонский', 'en': 'Macedonian'},
+    'mg': {'ru': 'Малагасийский', 'en': 'Malagasy'},
+    'ms': {'ru': 'Малайский', 'en': 'Malay'},
+    'ml': {'ru': 'Малаялам', 'en': 'Malayalam'},
+    'mt': {'ru': 'Мальтийский', 'en': 'Maltese'},
+    'mi': {'ru': 'Маори', 'en': 'Maori'},
+    'mr': {'ru': 'Маратхи', 'en': 'Marathi'},
+    'mn': {'ru': 'Монгольский', 'en': 'Mongolian'},
+    'my': {'ru': 'Бирманский', 'en': 'Myanmar'},
+    'ne': {'ru': 'Непальский', 'en': 'Nepali'},
+    'no': {'ru': 'Норвежский', 'en': 'Norwegian'},
+    'ny': {'ru': 'Ньянджа', 'en': 'Nyanja'},
+    'or': {'ru': 'Ория', 'en': 'Odia'},
+    'ps': {'ru': 'Пушту', 'en': 'Pashto'},
+    'fa': {'ru': 'Персидский', 'en': 'Persian'},
+    'pl': {'ru': 'Польский', 'en': 'Polish'},
+    'pt': {'ru': 'Португальский', 'en': 'Portuguese'},
+    'pa': {'ru': 'Панджаби', 'en': 'Punjabi'},
+    'ro': {'ru': 'Румынский', 'en': 'Romanian'},
+    'ru': {'ru': 'Русский', 'en': 'Russian'},
+    'sm': {'ru': 'Самоанский', 'en': 'Samoan'},
+    'gd': {'ru': 'Шотландский гэльский', 'en': 'Scots Gaelic'},
+    'sr': {'ru': 'Сербский', 'en': 'Serbian'},
+    'st': {'ru': 'Сесото', 'en': 'Sesotho'},
+    'sn': {'ru': 'Шона', 'en': 'Shona'},
+    'sd': {'ru': 'Синдхи', 'en': 'Sindhi'},
+    'si': {'ru': 'Сингальский', 'en': 'Sinhala'},
+    'sk': {'ru': 'Словацкий', 'en': 'Slovak'},
+    'sl': {'ru': 'Словенский', 'en': 'Slovenian'},
+    'so': {'ru': 'Сомалийский', 'en': 'Somali'},
+    'es': {'ru': 'Испанский', 'en': 'Spanish'},
+    'su': {'ru': 'Сунданский', 'en': 'Sundanese'},
+    'sw': {'ru': 'Суахили', 'en': 'Swahili'},
+    'sv': {'ru': 'Шведский', 'en': 'Swedish'},
+    'tl': {'ru': 'Тагальский', 'en': 'Tagalog'},
+    'tg': {'ru': 'Таджикский', 'en': 'Tajik'},
+    'ta': {'ru': 'Тамильский', 'en': 'Tamil'},
+    'tt': {'ru': 'Татарский', 'en': 'Tatar'},
+    'te': {'ru': 'Телугу', 'en': 'Telugu'},
+    'th': {'ru': 'Тайский', 'en': 'Thai'},
+    'tr': {'ru': 'Турецкий', 'en': 'Turkish'},
+    'tk': {'ru': 'Туркменский', 'en': 'Turkmen'},
+    'uk': {'ru': 'Украинский', 'en': 'Ukrainian'},
+    'ur': {'ru': 'Урду', 'en': 'Urdu'},
+    'ug': {'ru': 'Уйгурский', 'en': 'Uyghur'},
+    'uz': {'ru': 'Узбекский', 'en': 'Uzbek'},
+    'vi': {'ru': 'Вьетнамский', 'en': 'Vietnamese'},
+    'cy': {'ru': 'Валлийский', 'en': 'Welsh'},
+    'xh': {'ru': 'Коса', 'en': 'Xhosa'},
+    'yi': {'ru': 'Идиш', 'en': 'Yiddish'},
+    'yo': {'ru': 'Йоруба', 'en': 'Yoruba'},
+    'zu': {'ru': 'Зулу', 'en': 'Zulu'}
+}
+
 class TranslatorThread(QThread):
     finished = Signal(str, Exception)
 
@@ -115,11 +226,13 @@ class TranslatorApp(QMainWindow):
         lang_switcher_panel = QHBoxLayout()
         lang_switcher_panel.addStretch()
         self.source_lang_btn = QPushButton('Английский' if self.current_language == 'ru' else 'English')
+        self.source_lang_btn.setFixedWidth(150)
         self.source_lang_btn.clicked.connect(lambda: self.show_language_selector('source'))
         swap_button = QPushButton("⇄")
         swap_button.setFixedWidth(40)
         swap_button.clicked.connect(self.swap_languages)
         self.target_lang_btn = QPushButton('Русский' if self.current_language == 'ru' else 'Russian')
+        self.target_lang_btn.setFixedWidth(150)
         self.target_lang_btn.clicked.connect(lambda: self.show_language_selector('target'))
         lang_switcher_panel.addWidget(self.source_lang_btn)
         lang_switcher_panel.addWidget(swap_button)
@@ -215,6 +328,19 @@ class TranslatorApp(QMainWindow):
         self.statusBar.addPermanentWidget(self.lang_btn_en)
         self.update_lang_buttons()
 
+        # Добавляем курсор для всех кнопок
+        self.source_lang_btn.setCursor(Qt.PointingHandCursor)
+        self.target_lang_btn.setCursor(Qt.PointingHandCursor)
+        swap_button.setCursor(Qt.PointingHandCursor)
+        self.source_speak_btn.setCursor(Qt.PointingHandCursor)
+        self.source_copy_btn.setCursor(Qt.PointingHandCursor)
+        self.clear_source_btn.setCursor(Qt.PointingHandCursor)
+        self.target_speak_btn.setCursor(Qt.PointingHandCursor)
+        self.target_copy_btn.setCursor(Qt.PointingHandCursor)
+        self.history_btn.setCursor(Qt.PointingHandCursor)
+        self.lang_btn_ru.setCursor(Qt.PointingHandCursor)
+        self.lang_btn_en.setCursor(Qt.PointingHandCursor)
+
     def set_interface_language(self, lang_code):
         if lang_code == 'ru':
             self.current_language = 'ru'
@@ -308,6 +434,8 @@ class TranslatorApp(QMainWindow):
         # Кнопка закрытия
         close_btn = QPushButton()
         close_btn.setIcon(QIcon("icons/close.svg"))
+        close_btn.setFixedSize(26, 26)
+        close_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; cursor: pointer; } QPushButton:hover { background: #ececec; }")
         close_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.main_screen))
         top_panel.addWidget(close_btn)
         
@@ -341,6 +469,8 @@ class TranslatorApp(QMainWindow):
         # Кнопка закрытия
         close_btn = QPushButton()
         close_btn.setIcon(QIcon("icons/close.svg"))
+        close_btn.setFixedSize(22, 22)
+        close_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; cursor: pointer; } QPushButton:hover { background: #ececec; }")
         close_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.main_screen))
         top_panel.addWidget(close_btn)
         
@@ -378,74 +508,9 @@ class TranslatorApp(QMainWindow):
         list_widget.clear()
         
         # Добавляем языки в список
-        for code, name in LANGUAGES.items():
-            # Используем локализованные названия языков
-            localized_name = name
-            if self.current_language == 'ru':
-                # Для русского интерфейса используем русские названия языков
-                if code == 'en':
-                    localized_name = 'Английский'
-                elif code == 'ru':
-                    localized_name = 'Русский'
-                elif code == 'es':
-                    localized_name = 'Испанский'
-                elif code == 'fr':
-                    localized_name = 'Французский'
-                elif code == 'de':
-                    localized_name = 'Немецкий'
-                elif code == 'it':
-                    localized_name = 'Итальянский'
-                elif code == 'pt':
-                    localized_name = 'Португальский'
-                elif code == 'zh-cn':
-                    localized_name = 'Китайский (упрощенный)'
-                elif code == 'zh-tw':
-                    localized_name = 'Китайский (традиционный)'
-                elif code == 'ja':
-                    localized_name = 'Японский'
-                elif code == 'ko':
-                    localized_name = 'Корейский'
-                elif code == 'ar':
-                    localized_name = 'Арабский'
-                elif code == 'hi':
-                    localized_name = 'Хинди'
-                elif code == 'tr':
-                    localized_name = 'Турецкий'
-                elif code == 'pl':
-                    localized_name = 'Польский'
-                elif code == 'uk':
-                    localized_name = 'Украинский'
-                elif code == 'cs':
-                    localized_name = 'Чешский'
-                elif code == 'el':
-                    localized_name = 'Греческий'
-                elif code == 'bg':
-                    localized_name = 'Болгарский'
-                elif code == 'ro':
-                    localized_name = 'Румынский'
-                elif code == 'hu':
-                    localized_name = 'Венгерский'
-                elif code == 'fi':
-                    localized_name = 'Финский'
-                elif code == 'sv':
-                    localized_name = 'Шведский'
-                elif code == 'da':
-                    localized_name = 'Датский'
-                elif code == 'no':
-                    localized_name = 'Норвежский'
-                elif code == 'nl':
-                    localized_name = 'Голландский'
-                elif code == 'he':
-                    localized_name = 'Иврит'
-                elif code == 'id':
-                    localized_name = 'Индонезийский'
-                elif code == 'ms':
-                    localized_name = 'Малайский'
-                elif code == 'th':
-                    localized_name = 'Тайский'
-                elif code == 'vi':
-                    localized_name = 'Вьетнамский'
-            
+        for code in LANGUAGE_TRANSLATIONS.keys():
+            # Используем локализованные названия языков из словаря
+            localized_name = LANGUAGE_TRANSLATIONS[code][self.current_language]
             list_widget.addItem(localized_name)
         
         # Устанавливаем текущий выбранный язык
@@ -660,22 +725,30 @@ class TranslatorApp(QMainWindow):
             card_layout = QVBoxLayout(card)
             
             # Верхняя панель с информацией о языках и времени
-            header = QHBoxLayout()
+            header = QVBoxLayout()
+            
+            # Верхняя панель с языками и кнопкой удаления
+            top_panel = QHBoxLayout()
             
             # Информация о языках
             lang_info = QLabel(f"{LANGUAGES.get(source_lang, source_lang)} → {LANGUAGES.get(target_lang, target_lang)}")
-            header.addWidget(lang_info)
+            top_panel.addWidget(lang_info)
+            
+            # Кнопка удаления
+            delete_btn = QPushButton()
+            delete_btn.setIcon(QIcon("icons/trash.svg"))
+            delete_btn.setFixedSize(22, 22)
+            delete_btn.setCursor(Qt.PointingHandCursor)
+            delete_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; } QPushButton:hover { background: #ececec; }")
+            delete_btn.clicked.connect(lambda checked, rid=rowid: self.delete_translation(rid))
+            top_panel.addWidget(delete_btn)
+            
+            header.addLayout(top_panel)
             
             # Время
             time_info = QLabel(timestamp)
             time_info.setStyleSheet("color: #666;")
             header.addWidget(time_info)
-            
-            # Кнопка удаления
-            delete_btn = QPushButton()
-            delete_btn.setIcon(QIcon("icons/trash.svg"))
-            delete_btn.clicked.connect(lambda checked, rid=rowid: self.delete_translation(rid))
-            header.addWidget(delete_btn)
             
             card_layout.addLayout(header)
             
