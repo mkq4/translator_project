@@ -1,36 +1,9 @@
-# Приложение-переводчик
+v1 translator (all main features working)
+-- main screen
+<img width="814" alt="image" src="https://github.com/user-attachments/assets/5b68e967-ef40-48fb-9314-b63d8c8b0a59" />
 
-Простое десктопное приложение для перевода текста с использованием Google Translate API.
+-- select language screen
+<img width="818" alt="image" src="https://github.com/user-attachments/assets/cd1ff3dc-6650-45ae-b639-6ccdec3087db" />
 
-## Требования
-
-- Python 3.7+
-- PySide6
-- googletrans
-
-## Установка
-
-1. Клонируйте репозиторий
-2. Установите зависимости:
-```bash
-pip install -r requirements.txt
-```
-
-## Запуск
-
-```bash
-python translator_app.py
-```
-
-## Функциональность
-
-- Перевод текста между любыми поддерживаемыми языками
-- История переводов с возможностью удаления записей
-- Автоматическое сохранение всех переводов в базу данных
-- Обработка ошибок при проблемах с сетью или API
-
-## Структура проекта
-
-- `translator_app.py` - основной файл приложения
-- `translations.db` - база данных SQLite (создается автоматически)
-- `requirements.txt` - список зависимостей 
+-- translate histort screen
+<img width="809" alt="image" src="https://github.com/user-attachments/assets/c333fd5a-2890-4b49-9f0b-f2f8a935a2fb" />
