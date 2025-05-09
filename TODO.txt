@@ -1,1 +1,3 @@
 - disable speaker icon if unsuppirted language
+- автоматические определение языка
+- смена языка интерфейса

@@ -14,117 +14,7 @@ import os
 import sqlite3
 from datetime import datetime
 import pyperclip
-
-LANGUAGES = {
-    'af': 'Afrikaans',
-    'sq': 'Albanian',
-    'am': 'Amharic',
-    'ar': 'Arabic',
-    'hy': 'Armenian',
-    'az': 'Azerbaijani',
-    'eu': 'Basque',
-    'be': 'Belarusian',
-    'bn': 'Bengali',
-    'bs': 'Bosnian',
-    'bg': 'Bulgarian',
-    'ca': 'Catalan',
-    'ceb': 'Cebuano',
-    'zh-cn': 'Chinese (Simplified)',
-    'zh-tw': 'Chinese (Traditional)',
-    'co': 'Corsican',
-    'hr': 'Croatian',
-    'cs': 'Czech',
-    'da': 'Danish',
-    'nl': 'Dutch',
-    'en': 'English',
-    'eo': 'Esperanto',
-    'et': 'Estonian',
-    'fi': 'Finnish',
-    'fr': 'French',
-    'fy': 'Frisian',
-    'gl': 'Galician',
-    'ka': 'Georgian',
-    'de': 'German',
-    'el': 'Greek',
-    'gu': 'Gujarati',
-    'ht': 'Haitian Creole',
-    'ha': 'Hausa',
-    'haw': 'Hawaiian',
-    'he': 'Hebrew',
-    'hi': 'Hindi',
-    'hmn': 'Hmong',
-    'hu': 'Hungarian',
-    'is': 'Icelandic',
-    'ig': 'Igbo',
-    'id': 'Indonesian',
-    'ga': 'Irish',
-    'it': 'Italian',
-    'ja': 'Japanese',
-    'jw': 'Javanese',
-    'kn': 'Kannada',
-    'kk': 'Kazakh',
-    'km': 'Khmer',
-    'ko': 'Korean',
-    'ku': 'Kurdish',
-    'ky': 'Kyrgyz',
-    'lo': 'Lao',
-    'la': 'Latin',
-    'lv': 'Latvian',
-    'lt': 'Lithuanian',
-    'lb': 'Luxembourgish',
-    'mk': 'Macedonian',
-    'mg': 'Malagasy',
-    'ms': 'Malay',
-    'ml': 'Malayalam',
-    'mt': 'Maltese',
-    'mi': 'Maori',
-    'mr': 'Marathi',
-    'mn': 'Mongolian',
-    'my': 'Myanmar',
-    'ne': 'Nepali',
-    'no': 'Norwegian',
-    'ny': 'Nyanja',
-    'or': 'Odia',
-    'ps': 'Pashto',
-    'fa': 'Persian',
-    'pl': 'Polish',
-    'pt': 'Portuguese',
-    'pa': 'Punjabi',
-    'ro': 'Romanian',
-    'ru': 'Russian',
-    'sm': 'Samoan',
-    'gd': 'Scots Gaelic',
-    'sr': 'Serbian',
-    'st': 'Sesotho',
-    'sn': 'Shona',
-    'sd': 'Sindhi',
-    'si': 'Sinhala',
-    'sk': 'Slovak',
-    'sl': 'Slovenian',
-    'so': 'Somali',
-    'es': 'Spanish',
-    'su': 'Sundanese',
-    'sw': 'Swahili',
-    'sv': 'Swedish',
-    'tl': 'Tagalog',
-    'tg': 'Tajik',
-    'ta': 'Tamil',
-    'tt': 'Tatar',
-    'te': 'Telugu',
-    'th': 'Thai',
-    'tr': 'Turkish',
-    'tk': 'Turkmen',
-    'uk': 'Ukrainian',
-    'ur': 'Urdu',
-    'ug': 'Uyghur',
-    'uz': 'Uzbek',
-    'vi': 'Vietnamese',
-    'cy': 'Welsh',
-    'xh': 'Xhosa',
-    'yi': 'Yiddish',
-    'yo': 'Yoruba',
-    'zu': 'Zulu'
-}
+from translations import UI_TRANSLATIONS, LANGUAGES
 
 class TranslatorThread(QThread):
     finished = Signal(str, Exception)
@@ -153,7 +43,8 @@ class TranslatorThread(QThread):
 class TranslatorApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Переводчик")
+        self.current_language = 'ru'  # По умолчанию русский
+        self.setWindowTitle(UI_TRANSLATIONS[self.current_language]['window_title'])
         self.setGeometry(100, 100, 800, 600)
         
         # Инициализация pygame для воспроизведения звука
@@ -231,9 +122,21 @@ class TranslatorApp(QMainWindow):
         self.target_lang_btn = QPushButton(LANGUAGES['ru'])
         self.target_lang_btn.clicked.connect(lambda: self.show_language_selector('target'))
         
+        # Создаем переключатель языка интерфейса
+        lang_panel = QHBoxLayout()
+        lang_label = QLabel(UI_TRANSLATIONS[self.current_language]['interface_language'])
+        self.lang_toggle = QComboBox()
+        self.lang_toggle.addItems(['Русский', 'English'])
+        self.lang_toggle.setCurrentText('Русский' if self.current_language == 'ru' else 'English')
+        self.lang_toggle.currentTextChanged.connect(self.toggle_interface_language)
+        lang_panel.addWidget(lang_label)
+        lang_panel.addWidget(self.lang_toggle)
+        
         top_panel.addWidget(self.source_lang_btn)
         top_panel.addWidget(swap_button)
         top_panel.addWidget(self.target_lang_btn)
+        top_panel.addStretch()
+        top_panel.addLayout(lang_panel)
         main_layout.addLayout(top_panel)
 
         # Создаем горизонтальный layout для текстовых полей и кнопок
@@ -242,7 +145,7 @@ class TranslatorApp(QMainWindow):
         # Создаем вертикальный layout для исходного текста и его кнопок
         source_panel = QVBoxLayout()
         self.source_text = QPlainTextEdit()
-        self.source_text.setPlaceholderText("Введите текст для перевода...")
+        self.source_text.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['source_placeholder'])
         self.source_text.textChanged.connect(self.on_text_changed)
         source_panel.addWidget(self.source_text)
         
@@ -272,7 +175,7 @@ class TranslatorApp(QMainWindow):
         # Создаем вертикальный layout для целевого текста и его кнопок
         target_panel = QVBoxLayout()
         self.target_text = QPlainTextEdit()
-        self.target_text.setPlaceholderText("Перевод появится здесь...")
+        self.target_text.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['target_placeholder'])
         self.target_text.setReadOnly(True)
         target_panel.addWidget(self.target_text)
         
@@ -310,6 +213,92 @@ class TranslatorApp(QMainWindow):
         self.statusBar = QStatusBar()
         self.setStatusBar(self.statusBar)
 
+    def toggle_interface_language(self, lang):
+        self.current_language = 'ru' if lang == 'Русский' else 'en'
+        self.update_interface_language()
+        
+        # Сохраняем текущий экран
+        current_screen = self.stack.currentWidget()
+        
+        # Быстро переключаемся между экранами для обновления интерфейса
+        self.stack.setCurrentWidget(self.language_screen)
+        self.stack.setCurrentWidget(self.history_screen)
+        self.stack.setCurrentWidget(self.main_screen)
+        
+        # Обновляем кнопки выбора языка в заголовке
+        current_source = self.source_lang_btn.text()
+        current_target = self.target_lang_btn.text()
+        
+        # Обновляем названия языков в зависимости от выбранного языка интерфейса
+        if self.current_language == 'ru':
+            if current_source == 'English':
+                self.source_lang_btn.setText('Английский')
+            elif current_source == 'Russian':
+                self.source_lang_btn.setText('Русский')
+            if current_target == 'English':
+                self.target_lang_btn.setText('Английский')
+            elif current_target == 'Russian':
+                self.target_lang_btn.setText('Русский')
+        else:
+            if current_source == 'Английский':
+                self.source_lang_btn.setText('English')
+            elif current_source == 'Русский':
+                self.source_lang_btn.setText('Russian')
+            if current_target == 'Английский':
+                self.target_lang_btn.setText('English')
+            elif current_target == 'Русский':
+                self.target_lang_btn.setText('Russian')
+        
+        # Возвращаемся на исходный экран
+        self.stack.setCurrentWidget(current_screen)
+        
+        # Принудительно обновляем все виджеты
+        self.main_screen.update()
+        self.history_screen.update()
+        self.language_screen.update()
+        self.source_text.update()
+        self.target_text.update()
+
+    def update_interface_language(self):
+        # Обновляем заголовок окна
+        self.setWindowTitle(UI_TRANSLATIONS[self.current_language]['window_title'])
+        
+        # Обновляем плейсхолдеры
+        self.source_text.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['source_placeholder'])
+        self.target_text.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['target_placeholder'])
+        
+        # Обновляем метку языка интерфейса
+        for widget in self.main_screen.findChildren(QLabel):
+            if widget.text() in [UI_TRANSLATIONS['ru']['interface_language'], UI_TRANSLATIONS['en']['interface_language']]:
+                widget.setText(UI_TRANSLATIONS[self.current_language]['interface_language'])
+        
+        # Обновляем заголовки и тексты в экране истории
+        if hasattr(self, 'history_screen'):
+            for widget in self.history_screen.findChildren(QLabel):
+                if widget.text() in [UI_TRANSLATIONS['ru']['history_title'], UI_TRANSLATIONS['en']['history_title']]:
+                    widget.setText(UI_TRANSLATIONS[self.current_language]['history_title'])
+            
+            for widget in self.history_screen.findChildren(QPushButton):
+                if widget.text() in [UI_TRANSLATIONS['ru']['clear_history'], UI_TRANSLATIONS['en']['clear_history']]:
+                    widget.setText(UI_TRANSLATIONS[self.current_language]['clear_history'])
+        
+        # Обновляем заголовки и тексты в экране выбора языков
+        if hasattr(self, 'language_screen'):
+            for widget in self.language_screen.findChildren(QLabel):
+                if widget.text() in [UI_TRANSLATIONS['ru']['language_selector_title'], UI_TRANSLATIONS['en']['language_selector_title']]:
+                    widget.setText(UI_TRANSLATIONS[self.current_language]['language_selector_title'])
+                elif widget.text() in [UI_TRANSLATIONS['ru']['source_language'], UI_TRANSLATIONS['en']['source_language']]:
+                    widget.setText(UI_TRANSLATIONS[self.current_language]['source_language'])
+                elif widget.text() in [UI_TRANSLATIONS['ru']['target_language'], UI_TRANSLATIONS['en']['target_language']]:
+                    widget.setText(UI_TRANSLATIONS[self.current_language]['target_language'])
+            
+            for widget in self.language_screen.findChildren(QLineEdit):
+                widget.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
+        
+        # Обновляем тексты в диалогах подтверждения
+        self.delete_confirmation_text = UI_TRANSLATIONS[self.current_language]['delete_confirmation']
+        self.clear_confirmation_text = UI_TRANSLATIONS[self.current_language]['clear_confirmation']
+
     def setup_history_screen(self):
         layout = QVBoxLayout(self.history_screen)
         
@@ -317,12 +306,12 @@ class TranslatorApp(QMainWindow):
         top_panel = QHBoxLayout()
         
         # Заголовок
-        title = QLabel("История переводов")
+        title = QLabel(UI_TRANSLATIONS[self.current_language]['history_title'])
         title.setStyleSheet("font-size: 18px; font-weight: bold;")
         top_panel.addWidget(title)
         
         # Кнопка очистки истории
-        clear_btn = QPushButton("Очистить историю")
+        clear_btn = QPushButton(UI_TRANSLATIONS[self.current_language]['clear_history'])
         clear_btn.setIcon(QIcon("icons/trash.svg"))
         clear_btn.clicked.connect(self.clear_history)
         top_panel.addWidget(clear_btn)
@@ -356,7 +345,7 @@ class TranslatorApp(QMainWindow):
         top_panel = QHBoxLayout()
         
         # Заголовок
-        title = QLabel("Выбор языка")
+        title = QLabel(UI_TRANSLATIONS[self.current_language]['language_selector_title'])
         title.setStyleSheet("font-size: 18px; font-weight: bold;")
         top_panel.addWidget(title)
         
@@ -373,13 +362,13 @@ class TranslatorApp(QMainWindow):
         
         # Панель для исходного языка
         source_panel = QVBoxLayout()
-        source_label = QLabel("Исходный язык")
+        source_label = QLabel(UI_TRANSLATIONS[self.current_language]['source_language'])
         source_label.setStyleSheet("font-weight: bold;")
         source_panel.addWidget(source_label)
         
         # Поле поиска для исходного языка
         self.source_search = QLineEdit()
-        self.source_search.setPlaceholderText("Поиск языка...")
+        self.source_search.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
         self.source_search.textChanged.connect(lambda: self.filter_languages('source'))
         source_panel.addWidget(self.source_search)
         
@@ -390,13 +379,13 @@ class TranslatorApp(QMainWindow):
         
         # Панель для целевого языка
         target_panel = QVBoxLayout()
-        target_label = QLabel("Целевой язык")
+        target_label = QLabel(UI_TRANSLATIONS[self.current_language]['target_language'])
         target_label.setStyleSheet("font-weight: bold;")
         target_panel.addWidget(target_label)
         
         # Поле поиска для целевого языка
         self.target_search = QLineEdit()
-        self.target_search.setPlaceholderText("Поиск языка...")
+        self.target_search.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
         self.target_search.textChanged.connect(lambda: self.filter_languages('target'))
         target_panel.addWidget(self.target_search)
         
@@ -419,8 +408,75 @@ class TranslatorApp(QMainWindow):
         
         # Добавляем языки в списки
         for code, name in LANGUAGES.items():
-            self.source_list.addItem(name)
-            self.target_list.addItem(name)
+            # Используем локализованные названия языков
+            localized_name = name
+            if self.current_language == 'ru':
+                # Для русского интерфейса используем русские названия языков
+                if code == 'en':
+                    localized_name = 'Английский'
+                elif code == 'ru':
+                    localized_name = 'Русский'
+                elif code == 'es':
+                    localized_name = 'Испанский'
+                elif code == 'fr':
+                    localized_name = 'Французский'
+                elif code == 'de':
+                    localized_name = 'Немецкий'
+                elif code == 'it':
+                    localized_name = 'Итальянский'
+                elif code == 'pt':
+                    localized_name = 'Португальский'
+                elif code == 'zh-cn':
+                    localized_name = 'Китайский (упрощенный)'
+                elif code == 'zh-tw':
+                    localized_name = 'Китайский (традиционный)'
+                elif code == 'ja':
+                    localized_name = 'Японский'
+                elif code == 'ko':
+                    localized_name = 'Корейский'
+                elif code == 'ar':
+                    localized_name = 'Арабский'
+                elif code == 'hi':
+                    localized_name = 'Хинди'
+                elif code == 'tr':
+                    localized_name = 'Турецкий'
+                elif code == 'pl':
+                    localized_name = 'Польский'
+                elif code == 'uk':
+                    localized_name = 'Украинский'
+                elif code == 'cs':
+                    localized_name = 'Чешский'
+                elif code == 'el':
+                    localized_name = 'Греческий'
+                elif code == 'bg':
+                    localized_name = 'Болгарский'
+                elif code == 'ro':
+                    localized_name = 'Румынский'
+                elif code == 'hu':
+                    localized_name = 'Венгерский'
+                elif code == 'fi':
+                    localized_name = 'Финский'
+                elif code == 'sv':
+                    localized_name = 'Шведский'
+                elif code == 'da':
+                    localized_name = 'Датский'
+                elif code == 'no':
+                    localized_name = 'Норвежский'
+                elif code == 'nl':
+                    localized_name = 'Голландский'
+                elif code == 'he':
+                    localized_name = 'Иврит'
+                elif code == 'id':
+                    localized_name = 'Индонезийский'
+                elif code == 'ms':
+                    localized_name = 'Малайский'
+                elif code == 'th':
+                    localized_name = 'Тайский'
+                elif code == 'vi':
+                    localized_name = 'Вьетнамский'
+            
+            self.source_list.addItem(localized_name)
+            self.target_list.addItem(localized_name)
         
         # Устанавливаем текущие выбранные языки
         current_source = self.source_lang_btn.text()
@@ -447,6 +503,18 @@ class TranslatorApp(QMainWindow):
     def show_language_selector(self, target):
         self.current_language_target = target
         self.populate_language_lists()
+        # Обновляем заголовки и тексты в экране выбора языков
+        for widget in self.language_screen.findChildren(QLabel):
+            if widget.text() in [UI_TRANSLATIONS['ru']['language_selector_title'], UI_TRANSLATIONS['en']['language_selector_title']]:
+                widget.setText(UI_TRANSLATIONS[self.current_language]['language_selector_title'])
+            elif widget.text() in [UI_TRANSLATIONS['ru']['source_language'], UI_TRANSLATIONS['en']['source_language']]:
+                widget.setText(UI_TRANSLATIONS[self.current_language]['source_language'])
+            elif widget.text() in [UI_TRANSLATIONS['ru']['target_language'], UI_TRANSLATIONS['en']['target_language']]:
+                widget.setText(UI_TRANSLATIONS[self.current_language]['target_language'])
+        
+        for widget in self.language_screen.findChildren(QLineEdit):
+            widget.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['search_placeholder'])
+        
         self.stack.setCurrentWidget(self.language_screen)
 
     def select_language(self, target, item):
@@ -505,14 +573,17 @@ class TranslatorApp(QMainWindow):
         self.current_thread.finished.connect(self.translation_finished)
         self.current_thread.start()
         
-        self.statusBar.showMessage("Выполняется перевод...")
+        self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['translation_started'], 3000)
 
     def translation_finished(self, result, error):
         if error:
-            self.statusBar.showMessage(f"Ошибка перевода: {str(error)}", 3000)
+            self.statusBar.showMessage(
+                UI_TRANSLATIONS[self.current_language]['translation_error'].format(str(error)), 
+                3000
+            )
         else:
             self.target_text.setPlainText(result)
-            self.statusBar.showMessage("Перевод завершен", 3000)
+            self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['translation_completed'], 3000)
             
             # Сохраняем перевод в историю
             source_text = self.source_text.toPlainText()
@@ -546,20 +617,23 @@ class TranslatorApp(QMainWindow):
             pygame.mixer.music.load(self.current_audio_file)
             pygame.mixer.music.play()
             
-            self.statusBar.showMessage("Воспроизведение...", 3000)
+            self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['playback_started'], 3000)
             
         except Exception as e:
-            self.statusBar.showMessage(f"Ошибка воспроизведения: {str(e)}", 3000)
+            self.statusBar.showMessage(
+                UI_TRANSLATIONS[self.current_language]['playback_error'].format(str(e)), 
+                3000
+            )
 
     def copy_text(self, text):
         if text.strip():
             pyperclip.copy(text)
-            self.statusBar.showMessage("Текст скопирован в буфер обмена", 3000)
+            self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['copy_message'], 3000)
 
     def clear_source_text(self):
         self.source_text.clear()
         self.target_text.clear()
-        self.statusBar.showMessage("Текст очищен", 3000)
+        self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['clear_message'], 3000)
 
     def show_history(self):
         self.load_history()
@@ -639,8 +713,8 @@ class TranslatorApp(QMainWindow):
     def delete_translation(self, rowid):
         reply = QMessageBox.question(
             self,
-            'Подтверждение',
-            'Вы уверены, что хотите удалить эту запись?',
+            self.delete_confirmation_text,
+            '',
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -653,8 +727,8 @@ class TranslatorApp(QMainWindow):
     def clear_history(self):
         reply = QMessageBox.question(
             self,
-            'Подтверждение',
-            'Вы уверены, что хотите очистить всю историю переводов?',
+            self.clear_confirmation_text,
+            '',
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
