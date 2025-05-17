@@ -11,10 +11,11 @@ from gtts import gTTS
 import pygame
 import tempfile
 import os
-import sqlite3
 from datetime import datetime
 import pyperclip
 from translations import UI_TRANSLATIONS, LANGUAGES
+from langdetect import detect, LangDetectException
+from translations_storage import TranslationsStorage
 
 LANGUAGE_TRANSLATIONS = {
     'af': {'ru': 'Африкаанс', 'en': 'Afrikaans'},
@@ -127,6 +128,68 @@ LANGUAGE_TRANSLATIONS = {
     'zu': {'ru': 'Зулу', 'en': 'Zulu'}
 }
 
+GTTTS_SUPPORTED_LANGUAGES = {
+    'af': 'afrikaans',
+    'ar': 'ar',
+    'bn': 'bn',
+    'bs': 'bs',
+    'ca': 'ca',
+    'cs': 'cs',
+    'cy': 'cy',
+    'da': 'da',
+    'de': 'de',
+    'el': 'el',
+    'en': 'en',
+    'eo': 'eo',
+    'es': 'es',
+    'et': 'et',
+    'fi': 'fi',
+    'fr': 'fr',
+    'gu': 'gu',
+    'hi': 'hi',
+    'hr': 'hr',
+    'hu': 'hu',
+    'hy': 'hy',
+    'id': 'id',
+    'is': 'is',
+    'it': 'it',
+    'ja': 'ja',
+    'jw': 'jw',
+    'km': 'km',
+    'kn': 'kn',
+    'ko': 'ko',
+    'la': 'la',
+    'lv': 'lv',
+    'mk': 'mk',
+    'ml': 'ml',
+    'mr': 'mr',
+    'my': 'my',
+    'ne': 'ne',
+    'nl': 'nl',
+    'no': 'no',
+    'pl': 'pl',
+    'pt': 'pt',
+    'ro': 'ro',
+    'ru': 'ru',
+    'si': 'si',
+    'sk': 'sk',
+    'sq': 'sq',
+    'sr': 'sr',
+    'su': 'su',
+    'sv': 'sv',
+    'sw': 'sw',
+    'ta': 'ta',
+    'te': 'te',
+    'th': 'th',
+    'tl': 'tl',
+    'tr': 'tr',
+    'uk': 'uk',
+    'ur': 'ur',
+    'vi': 'vi',
+    'zh-cn': 'zh-CN',
+    'zh-tw': 'zh-TW'
+}
+
 class TranslatorThread(QThread):
     finished = Signal(str, Exception)
 
@@ -162,8 +225,8 @@ class TranslatorApp(QMainWindow):
         pygame.mixer.init()
         self.current_audio_file = None
         
-        # Инициализация базы данных
-        self.init_db()
+        # Инициализация хранилища переводов
+        self.storage = TranslationsStorage()
         
         # Инициализация таймера для задержки перевода
         self.translation_timer = QTimer()
@@ -172,6 +235,10 @@ class TranslatorApp(QMainWindow):
         
         # Инициализация переменной для хранения текущего потока перевода
         self.current_thread = None
+        
+        # Тексты для подтверждений
+        self.delete_confirmation_text = UI_TRANSLATIONS[self.current_language]['delete_confirmation']
+        self.clear_confirmation_text = UI_TRANSLATIONS[self.current_language]['clear_confirmation']
         
         # Создаем стек виджетов для разных экранов
         self.stack = QStackedWidget()
@@ -198,25 +265,6 @@ class TranslatorApp(QMainWindow):
         
         # Показываем главный экран
         self.stack.setCurrentWidget(self.main_screen)
-
-    def init_db(self):
-        self.conn = sqlite3.connect('translations.db')
-        self.cursor = self.conn.cursor()
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS translations
-            (timestamp TEXT, source_text TEXT, translated_text TEXT,
-             source_lang TEXT, target_lang TEXT)
-        ''')
-        self.conn.commit()
-
-    def save_translation(self, source_text, translated_text, source_lang, target_lang):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.cursor.execute('''
-            INSERT INTO translations 
-            (timestamp, source_text, translated_text, source_lang, target_lang)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (timestamp, source_text, translated_text, source_lang, target_lang))
-        self.conn.commit()
 
     def setup_main_screen(self):
         # Создаем центральный виджет и главный layout
@@ -351,6 +399,10 @@ class TranslatorApp(QMainWindow):
             self.lang_btn_ru.setDisabled(False)
             self.lang_btn_en.setDisabled(True)
         
+        # Обновляем тексты подтверждений
+        self.delete_confirmation_text = UI_TRANSLATIONS[self.current_language]['delete_confirmation']
+        self.clear_confirmation_text = UI_TRANSLATIONS[self.current_language]['clear_confirmation']
+        
         # Сохраняем текущие языки
         current_source = self.source_lang_btn.text()
         current_target = self.target_lang_btn.text()
@@ -373,6 +425,7 @@ class TranslatorApp(QMainWindow):
             self.target_lang_btn.setText(LANGUAGE_TRANSLATIONS[target_code][self.current_language])
         
         self.update_interface_language()
+        self.update_speaker_buttons()  # Обновляем состояние кнопок speaker
         # Быстро обновляем экраны
         current_screen = self.stack.currentWidget()
         self.stack.setCurrentWidget(self.source_language_screen)
@@ -404,7 +457,7 @@ class TranslatorApp(QMainWindow):
         self.target_text.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['target_placeholder'])
         
         # Обновляем метку языка интерфейса
-        for widget in self.main_screen.findChildren(QLabel):
+        for widget in self.statusBar.findChildren(QLabel):
             if widget.text() in [UI_TRANSLATIONS['ru']['interface_language'], UI_TRANSLATIONS['en']['interface_language']]:
                 widget.setText(UI_TRANSLATIONS[self.current_language]['interface_language'])
         
@@ -448,16 +501,19 @@ class TranslatorApp(QMainWindow):
         top_panel.addWidget(title)
         
         # Кнопка очистки истории
-        clear_btn = QPushButton(UI_TRANSLATIONS[self.current_language]['clear_history'])
-        clear_btn.setIcon(QIcon("icons/trash.svg"))
-        clear_btn.clicked.connect(self.clear_history)
-        top_panel.addWidget(clear_btn)
+        self.clear_history_btn = QPushButton(UI_TRANSLATIONS[self.current_language]['clear_history'])
+        self.clear_history_btn.setIcon(QIcon("icons/trash.svg"))
+        self.clear_history_btn.setCursor(Qt.PointingHandCursor)
+        self.clear_history_btn.clicked.connect(self.clear_history)
+        self.clear_history_btn.setEnabled(False)  # По умолчанию отключена
+        top_panel.addWidget(self.clear_history_btn)
         
         # Кнопка закрытия
         close_btn = QPushButton()
         close_btn.setIcon(QIcon("icons/close.svg"))
         close_btn.setFixedSize(26, 26)
-        close_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; cursor: pointer; } QPushButton:hover { background: #ececec; }")
+        close_btn.setCursor(Qt.PointingHandCursor)
+        close_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; } QPushButton:hover { background: #ececec; }")
         close_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.main_screen))
         top_panel.addWidget(close_btn)
         
@@ -473,6 +529,13 @@ class TranslatorApp(QMainWindow):
         self.history_layout = QVBoxLayout(self.history_container)
         self.history_layout.setAlignment(Qt.AlignTop)
         self.history_layout.setSpacing(10)
+        
+        # Создаем метку для пустой истории
+        self.empty_history_label = QLabel(UI_TRANSLATIONS[self.current_language]['no_history'])
+        self.empty_history_label.setStyleSheet("color: #666; font-size: 14px;")
+        self.empty_history_label.setAlignment(Qt.AlignCenter)
+        self.history_layout.addWidget(self.empty_history_label)
+        self.empty_history_label.hide()  # По умолчанию скрыта
         
         scroll.setWidget(self.history_container)
         layout.addWidget(scroll)
@@ -492,7 +555,7 @@ class TranslatorApp(QMainWindow):
         close_btn = QPushButton()
         close_btn.setIcon(QIcon("icons/close.svg"))
         close_btn.setFixedSize(22, 22)
-        close_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; cursor: pointer; } QPushButton:hover { background: #ececec; }")
+        close_btn.setCursor(Qt.PointingHandCursor)
         close_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.main_screen))
         top_panel.addWidget(close_btn)
         
@@ -573,6 +636,7 @@ class TranslatorApp(QMainWindow):
         else:
             self.target_lang_btn.setText(item.text())
         self.stack.setCurrentWidget(self.main_screen)
+        self.update_speaker_buttons()  # Обновляем состояние кнопок speaker
         self.do_translation()
 
     def swap_languages(self):
@@ -595,57 +659,42 @@ class TranslatorApp(QMainWindow):
         self.translation_timer.stop()
         
         # Отменяем предыдущий перевод, если он еще выполняется
-        if self.current_thread and self.current_thread.isRunning():
-            self.current_thread.terminate()
-            self.current_thread.wait()
+        if hasattr(self, 'translation_thread') and self.translation_thread and self.translation_thread.isRunning():
+            self.translation_thread.terminate()
+            self.translation_thread.wait()
+            self.translation_thread = None
         
         # Запускаем перевод через 300мс после последнего изменения
         self.translation_timer.start(300)
 
     def do_translation(self):
-        # Получаем текст для перевода
         text = self.source_text.toPlainText().strip()
         if not text:
-            self.target_text.clear()
+            self.target_text.setPlainText('')
             return
 
+        # Продолжаем с переводом
+        self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['translation_started'])
+        
         # Получаем коды языков
-        source_lang = None
-        target_lang = None
+        source_code = next((code for code, names in LANGUAGE_TRANSLATIONS.items() 
+                          if names[self.current_language] == self.source_lang_btn.text()), None)
+        target_code = next((code for code, names in LANGUAGE_TRANSLATIONS.items() 
+                          if names[self.current_language] == self.target_lang_btn.text()), None)
         
-        # Ищем код языка в словаре, учитывая текущий язык интерфейса
-        for code, name in LANGUAGES.items():
-            if self.current_language == 'ru':
-                # Для русского интерфейса ищем русские названия
-                if name == self.source_lang_btn.text():
-                    source_lang = code.split('_')[0]  # Берем только код языка без суффикса
-                if name == self.target_lang_btn.text():
-                    target_lang = code.split('_')[0]
-            else:
-                # Для английского интерфейса ищем английские названия
-                if name == self.source_lang_btn.text():
-                    source_lang = code
-                if name == self.target_lang_btn.text():
-                    target_lang = code
-        
-        if not source_lang or not target_lang:
-            self.statusBar.showMessage(
-                UI_TRANSLATIONS[self.current_language]['translation_error'].format('Language not found'), 
-                3000
-            )
+        if not source_code or not target_code:
+            self.target_text.setPlainText(UI_TRANSLATIONS[self.current_language]['translation_error'].format(
+                UI_TRANSLATIONS[self.current_language]['invalid_language']))
             return
-
-        # Если уже есть активный перевод, отменяем его
-        if self.current_thread and self.current_thread.isRunning():
-            self.current_thread.terminate()
-            self.current_thread.wait()
-
-        # Создаем и запускаем новый поток для перевода
-        self.current_thread = TranslatorThread(text, source_lang, target_lang)
-        self.current_thread.finished.connect(self.translation_finished)
-        self.current_thread.start()
         
-        self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['translation_started'], 3000)
+        # Запускаем перевод в отдельном потоке
+        if hasattr(self, 'translation_thread') and self.translation_thread and self.translation_thread.isRunning():
+            self.translation_thread.terminate()
+            self.translation_thread.wait()
+        
+        self.translation_thread = TranslatorThread(text, source_code, target_code)
+        self.translation_thread.finished.connect(self.translation_finished)
+        self.translation_thread.start()
 
     def translation_finished(self, result, error):
         if error:
@@ -661,9 +710,10 @@ class TranslatorApp(QMainWindow):
             source_text = self.source_text.toPlainText()
             source_lang = next(code for code, name in LANGUAGES.items() if name == self.source_lang_btn.text())
             target_lang = next(code for code, name in LANGUAGES.items() if name == self.target_lang_btn.text())
-            self.save_translation(source_text, result, source_lang, target_lang)
+            self.storage.save_translation(source_text, result, source_lang, target_lang)
         
-        self.current_thread = None
+        if hasattr(self, 'translation_thread'):
+            self.translation_thread = None
 
     def speak_text(self, text, lang):
         if not text.strip():
@@ -717,22 +767,26 @@ class TranslatorApp(QMainWindow):
         self.stack.setCurrentWidget(self.history_screen)
 
     def load_history(self):
-        # Очищаем текущую историю
+        # Очищаем текущую историю, но сохраняем метку пустой истории
         while self.history_layout.count():
             item = self.history_layout.takeAt(0)
-            if item.widget():
+            if item.widget() and item.widget() != self.empty_history_label:
                 item.widget().deleteLater()
         
         # Загружаем последние 50 переводов
-        self.cursor.execute('''
-            SELECT rowid, timestamp, source_text, translated_text, source_lang, target_lang 
-            FROM translations 
-            ORDER BY timestamp DESC 
-            LIMIT 50
-        ''')
-        translations = self.cursor.fetchall()
+        translations = self.storage.get_translations(50)
         
-        for rowid, timestamp, source_text, translated_text, source_lang, target_lang in translations:
+        # Показываем/скрываем метку пустой истории и кнопку очистки
+        has_translations = len(translations) > 0
+        self.empty_history_label.setVisible(not has_translations)
+        self.clear_history_btn.setEnabled(has_translations)
+        
+        if not has_translations:
+            if not self.history_layout.count():
+                self.history_layout.addWidget(self.empty_history_label)
+            return
+        
+        for index, translation in enumerate(translations):
             # Создаем карточку для записи
             card = QFrame()
             card.setObjectName("historyCard")
@@ -746,14 +800,14 @@ class TranslatorApp(QMainWindow):
             
             card_layout = QVBoxLayout(card)
             
-            # Верхняя панель с информацией о языках и времени
+            # Верхняя панель с информацией о языках и временем
             header = QVBoxLayout()
             
             # Верхняя панель с языками и кнопкой удаления
             top_panel = QHBoxLayout()
             
             # Информация о языках
-            lang_info = QLabel(f"{LANGUAGES.get(source_lang, source_lang)} → {LANGUAGES.get(target_lang, target_lang)}")
+            lang_info = QLabel(f"{LANGUAGES.get(translation['source_lang'], translation['source_lang'])} → {LANGUAGES.get(translation['target_lang'], translation['target_lang'])}")
             top_panel.addWidget(lang_info)
             
             # Кнопка удаления
@@ -762,13 +816,13 @@ class TranslatorApp(QMainWindow):
             delete_btn.setFixedSize(22, 22)
             delete_btn.setCursor(Qt.PointingHandCursor)
             delete_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; } QPushButton:hover { background: #ececec; }")
-            delete_btn.clicked.connect(lambda checked, rid=rowid: self.delete_translation(rid))
+            delete_btn.clicked.connect(lambda checked, idx=index: self.delete_translation(idx))
             top_panel.addWidget(delete_btn)
             
             header.addLayout(top_panel)
             
             # Время
-            time_info = QLabel(timestamp)
+            time_info = QLabel(translation['timestamp'])
             time_info.setStyleSheet("color: #666;")
             header.addWidget(time_info)
             
@@ -777,51 +831,115 @@ class TranslatorApp(QMainWindow):
             # Тексты перевода
             texts = QHBoxLayout()
             
+            # Панель для исходного текста
+            source_panel = QVBoxLayout()
+            
             # Исходный текст
             source = QPlainTextEdit()
-            source.setPlainText(source_text)
+            source.setPlainText(translation['source_text'])
             source.setReadOnly(True)
             source.setMaximumHeight(100)
-            texts.addWidget(source)
+            source_panel.addWidget(source)
+            
+            # Кнопки для исходного текста
+            source_buttons = QHBoxLayout()
+            
+            # Кнопка озвучки
+            source_speak_btn = QPushButton()
+            source_speak_btn.setIcon(QIcon("icons/speaker.svg"))
+            source_speak_btn.setFixedSize(22, 22)
+            source_speak_btn.setCursor(Qt.PointingHandCursor)
+            source_speak_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; } QPushButton:hover { background: #ececec; }")
+            
+            # Создаем замыкание для кнопки озвучки исходного текста
+            def create_source_speak_handler(text, lang):
+                return lambda: self.speak_text(text, lang)
+            
+            source_speak_btn.clicked.connect(create_source_speak_handler(
+                translation['source_text'],
+                translation['source_lang']
+            ))
+            source_buttons.addWidget(source_speak_btn)
+            
+            # Кнопка копирования
+            source_copy_btn = QPushButton()
+            source_copy_btn.setIcon(QIcon("icons/copy.svg"))
+            source_copy_btn.setFixedSize(22, 22)
+            source_copy_btn.setCursor(Qt.PointingHandCursor)
+            source_copy_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; } QPushButton:hover { background: #ececec; }")
+            
+            # Создаем замыкание для кнопки копирования исходного текста
+            def create_source_copy_handler(text):
+                return lambda: self.copy_text(text)
+            
+            source_copy_btn.clicked.connect(create_source_copy_handler(translation['source_text']))
+            source_buttons.addWidget(source_copy_btn)
+            
+            source_buttons.addStretch()
+            source_panel.addLayout(source_buttons)
+            
+            texts.addLayout(source_panel)
+            
+            # Панель для переведенного текста
+            target_panel = QVBoxLayout()
             
             # Перевод
             target = QPlainTextEdit()
-            target.setPlainText(translated_text)
+            target.setPlainText(translation['translated_text'])
             target.setReadOnly(True)
             target.setMaximumHeight(100)
-            texts.addWidget(target)
+            target_panel.addWidget(target)
+            
+            # Кнопки для переведенного текста
+            target_buttons = QHBoxLayout()
+            
+            # Кнопка озвучки
+            target_speak_btn = QPushButton()
+            target_speak_btn.setIcon(QIcon("icons/speaker.svg"))
+            target_speak_btn.setFixedSize(22, 22)
+            target_speak_btn.setCursor(Qt.PointingHandCursor)
+            target_speak_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; } QPushButton:hover { background: #ececec; }")
+            
+            # Создаем замыкание для кнопки озвучки переведенного текста
+            def create_target_speak_handler(text, lang):
+                return lambda: self.speak_text(text, lang)
+            
+            target_speak_btn.clicked.connect(create_target_speak_handler(
+                translation['translated_text'],
+                translation['target_lang']
+            ))
+            target_buttons.addWidget(target_speak_btn)
+            
+            # Кнопка копирования
+            target_copy_btn = QPushButton()
+            target_copy_btn.setIcon(QIcon("icons/copy.svg"))
+            target_copy_btn.setFixedSize(22, 22)
+            target_copy_btn.setCursor(Qt.PointingHandCursor)
+            target_copy_btn.setStyleSheet("QPushButton { background: transparent; border: none; padding: 0; } QPushButton:hover { background: #ececec; }")
+            
+            # Создаем замыкание для кнопки копирования переведенного текста
+            def create_target_copy_handler(text):
+                return lambda: self.copy_text(text)
+            
+            target_copy_btn.clicked.connect(create_target_copy_handler(translation['translated_text']))
+            target_buttons.addWidget(target_copy_btn)
+            
+            target_buttons.addStretch()
+            target_panel.addLayout(target_buttons)
+            
+            texts.addLayout(target_panel)
             
             card_layout.addLayout(texts)
             
             self.history_layout.addWidget(card)
 
-    def delete_translation(self, rowid):
-        reply = QMessageBox.question(
-            self,
-            self.delete_confirmation_text,
-            '',
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            self.cursor.execute('DELETE FROM translations WHERE rowid = ?', (rowid,))
-            self.conn.commit()
-            self.load_history()
+    def delete_translation(self, index):
+        self.storage.delete_translation(index)
+        self.load_history()
 
     def clear_history(self):
-        reply = QMessageBox.question(
-            self,
-            self.clear_confirmation_text,
-            '',
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            self.cursor.execute('DELETE FROM translations')
-            self.conn.commit()
-            self.load_history()
+        self.storage.clear_translations()
+        self.load_history()
 
     def closeEvent(self, event):
         # Очищаем временный файл при закрытии
@@ -830,9 +948,24 @@ class TranslatorApp(QMainWindow):
                 os.remove(self.current_audio_file)
             except:
                 pass
-        # Закрываем соединение с базой данных
-        self.conn.close()
         super().closeEvent(event)
+
+    def update_speaker_buttons(self):
+        # Получаем коды языков
+        source_code = next((code for code, names in LANGUAGE_TRANSLATIONS.items() 
+                          if names[self.current_language] == self.source_lang_btn.text()), None)
+        target_code = next((code for code, names in LANGUAGE_TRANSLATIONS.items() 
+                          if names[self.current_language] == self.target_lang_btn.text()), None)
+        
+        # Проверяем поддержку языков для озвучки
+        self.source_speak_btn.setEnabled(source_code in GTTTS_SUPPORTED_LANGUAGES)
+        self.target_speak_btn.setEnabled(target_code in GTTTS_SUPPORTED_LANGUAGES)
+        
+        # Добавляем подсказку для отключенных кнопок
+        if not self.source_speak_btn.isEnabled():
+            self.source_speak_btn.setToolTip(UI_TRANSLATIONS[self.current_language]['tts_not_supported'])
+        if not self.target_speak_btn.isEnabled():
+            self.target_speak_btn.setToolTip(UI_TRANSLATIONS[self.current_language]['tts_not_supported'])
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

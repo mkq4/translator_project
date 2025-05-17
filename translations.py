@@ -21,7 +21,14 @@ UI_TRANSLATIONS = {
         'clear_confirmation': 'Вы уверены, что хотите очистить всю историю переводов?',
         'yes': 'Да',
         'no': 'Нет',
-        'interface_language': 'Язык интерфейса:'
+        'interface_language': 'Язык интерфейса:',
+        'tts_not_supported': 'Озвучка не поддерживается для этого языка',
+        'language_detection': 'Определение языка',
+        'language_detected': 'Определен язык: {}. Хотите использовать его для перевода?',
+        'language_not_supported': 'Определенный язык не поддерживается переводчиком',
+        'language_detection_failed': 'Не удалось определить язык текста',
+        'invalid_language': 'Неверный язык',
+        'no_history': 'Нет данных'
     },
     'en': {
         'window_title': 'Translator',
@@ -44,7 +51,14 @@ UI_TRANSLATIONS = {
         'clear_confirmation': 'Are you sure you want to clear all translation history?',
         'yes': 'Yes',
         'no': 'No',
-        'interface_language': 'Interface language:'
+        'interface_language': 'Interface language:',
+        'tts_not_supported': 'Text-to-speech is not supported for this language',
+        'language_detection': 'Language Detection',
+        'language_detected': 'Detected language: {}. Would you like to use it for translation?',
+        'language_not_supported': 'The detected language is not supported by the translator',
+        'language_detection_failed': 'Could not detect the language of the text',
+        'invalid_language': 'Invalid language',
+        'no_history': 'No data'
     }
 }
 
