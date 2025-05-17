@@ -1,1 +1,170 @@
-[]
+[
+  {
+    "timestamp": "2025-05-17 22:43:56",
+    "source_text": "This is English",
+    "translated_text": "Это английский",
+    "source_lang": "en",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-17 22:43:51",
+    "source_text": "This is English",
+    "translated_text": "Это английский",
+    "source_lang": "en",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-17 22:43:50",
+    "source_text": "This is English",
+    "translated_text": "Это английский",
+    "source_lang": "en",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-17 22:43:46",
+    "source_text": "это английский язык",
+    "translated_text": "This is English",
+    "source_lang": "ru",
+    "target_lang": "en"
+  },
+  {
+    "timestamp": "2025-05-17 22:43:41",
+    "source_text": "это английский языкэто английский язык",
+    "translated_text": "This is English is English",
+    "source_lang": "ru",
+    "target_lang": "en"
+  },
+  {
+    "timestamp": "2025-05-17 22:43:38",
+    "source_text": "это английский язык",
+    "translated_text": "This is English",
+    "source_lang": "ru",
+    "target_lang": "en"
+  },
+  {
+    "timestamp": "2025-05-17 22:43:37",
+    "source_text": "это английский язык",
+    "translated_text": "This is English",
+    "source_lang": "ru",
+    "target_lang": "en"
+  },
+  {
+    "timestamp": "2025-05-17 22:42:28",
+    "source_text": "it is english language",
+    "translated_text": "это английский язык",
+    "source_lang": "en",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-17 22:40:20",
+    "source_text": "it is english language",
+    "translated_text": "It is English Language",
+    "source_lang": "tl",
+    "target_lang": "en"
+  },
+  {
+    "timestamp": "2025-05-17 21:26:53",
+    "source_text": "Привет, как дела?",
+    "translated_text": "ПРИО, КАК ДЕЛА?",
+    "source_lang": "en",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:26:43",
+    "source_text": "Привет, как дела?",
+    "translated_text": "ПРИО, КАК ДЕЛА?",
+    "source_lang": "en",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:25:22",
+    "source_text": "hello",
+    "translated_text": "привет",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:48",
+    "source_text": "Привет, как дела?",
+    "translated_text": "Hi, how are you?",
+    "source_lang": "ru_ru",
+    "target_lang": "en_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:48",
+    "source_text": "Привет, как дела?",
+    "translated_text": "Hi, how are you?",
+    "source_lang": "ru_ru",
+    "target_lang": "en_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:46",
+    "source_text": "Hello, how are you?",
+    "translated_text": "Привет, как дела?",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:43",
+    "source_text": "Hello, how are youHello, how are you?",
+    "translated_text": "Привет, как дела, как дела?",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:42",
+    "source_text": "Hello, how are you",
+    "translated_text": "Привет, как дела",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:41",
+    "source_text": "Hello, how are you?",
+    "translated_text": "Привет, как дела?",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:39",
+    "source_text": "Hello, how are you?",
+    "translated_text": "Привет, как дела?",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:38",
+    "source_text": "Hi, how are you?",
+    "translated_text": "Привет, как дела?",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:27",
+    "source_text": "Привет, как дела?",
+    "translated_text": "Hi, how are you?",
+    "source_lang": "ru_ru",
+    "target_lang": "en_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:23:21",
+    "source_text": "Привет, как дела?",
+    "translated_text": "Hi, how are you?",
+    "source_lang": "ru_ru",
+    "target_lang": "en_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:22:36",
+    "source_text": "Если пользователь нажимает \"Да\", язык автоматически меняется и начинается перевод\n",
+    "translated_text": "If the user presses yes, the tongue automatically changes and translation begins",
+    "source_lang": "ru_ru",
+    "target_lang": "en_ru"
+  },
+  {
+    "timestamp": "2025-05-17 21:22:28",
+    "source_text": "hello",
+    "translated_text": "привет",
+    "source_lang": "en_ru",
+    "target_lang": "ru_ru"
+  }
+]

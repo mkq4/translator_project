@@ -240,6 +240,9 @@ class TranslatorApp(QMainWindow):
         self.delete_confirmation_text = UI_TRANSLATIONS[self.current_language]['delete_confirmation']
         self.clear_confirmation_text = UI_TRANSLATIONS[self.current_language]['clear_confirmation']
         
+        # Флаг для отслеживания вставки текста
+        self.is_pasting = False
+        
         # Создаем стек виджетов для разных экранов
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
@@ -296,6 +299,7 @@ class TranslatorApp(QMainWindow):
         self.source_text = QPlainTextEdit()
         self.source_text.setPlaceholderText(UI_TRANSLATIONS[self.current_language]['source_placeholder'])
         self.source_text.textChanged.connect(self.on_text_changed)
+        self.source_text.installEventFilter(self)  # Устанавливаем обработчик событий
         source_panel.addWidget(self.source_text)
         
         # Кнопки для исходного текста
@@ -655,17 +659,14 @@ class TranslatorApp(QMainWindow):
             self.do_translation()
 
     def on_text_changed(self):
-        # Сбрасываем и перезапускаем таймер при каждом изменении текста
-        self.translation_timer.stop()
-        
-        # Отменяем предыдущий перевод, если он еще выполняется
-        if hasattr(self, 'translation_thread') and self.translation_thread and self.translation_thread.isRunning():
-            self.translation_thread.terminate()
-            self.translation_thread.wait()
-            self.translation_thread = None
-        
-        # Запускаем перевод через 300мс после последнего изменения
-        self.translation_timer.start(300)
+        # Если это не вставка текста, просто обновляем перевод
+        if not self.is_pasting:
+            self.translation_timer.stop()
+            if hasattr(self, 'translation_thread') and self.translation_thread and self.translation_thread.isRunning():
+                self.translation_thread.terminate()
+                self.translation_thread.wait()
+                self.translation_thread = None
+            self.translation_timer.start(300)
 
     def do_translation(self):
         text = self.source_text.toPlainText().strip()
@@ -708,8 +709,11 @@ class TranslatorApp(QMainWindow):
             
             # Сохраняем перевод в историю
             source_text = self.source_text.toPlainText()
-            source_lang = next(code for code, name in LANGUAGES.items() if name == self.source_lang_btn.text())
-            target_lang = next(code for code, name in LANGUAGES.items() if name == self.target_lang_btn.text())
+            # Находим код языка из LANGUAGE_TRANSLATIONS
+            source_lang = next(code for code, names in LANGUAGE_TRANSLATIONS.items() 
+                             if names[self.current_language] == self.source_lang_btn.text())
+            target_lang = next(code for code, names in LANGUAGE_TRANSLATIONS.items() 
+                             if names[self.current_language] == self.target_lang_btn.text())
             self.storage.save_translation(source_text, result, source_lang, target_lang)
         
         if hasattr(self, 'translation_thread'):
@@ -807,7 +811,9 @@ class TranslatorApp(QMainWindow):
             top_panel = QHBoxLayout()
             
             # Информация о языках
-            lang_info = QLabel(f"{LANGUAGES.get(translation['source_lang'], translation['source_lang'])} → {LANGUAGES.get(translation['target_lang'], translation['target_lang'])}")
+            source_lang_name = LANGUAGE_TRANSLATIONS.get(translation['source_lang'], {}).get(self.current_language, translation['source_lang'])
+            target_lang_name = LANGUAGE_TRANSLATIONS.get(translation['target_lang'], {}).get(self.current_language, translation['target_lang'])
+            lang_info = QLabel(f"{source_lang_name} → {target_lang_name}")
             top_panel.addWidget(lang_info)
             
             # Кнопка удаления
@@ -966,6 +972,52 @@ class TranslatorApp(QMainWindow):
             self.source_speak_btn.setToolTip(UI_TRANSLATIONS[self.current_language]['tts_not_supported'])
         if not self.target_speak_btn.isEnabled():
             self.target_speak_btn.setToolTip(UI_TRANSLATIONS[self.current_language]['tts_not_supported'])
+
+    def eventFilter(self, obj, event):
+        if obj == self.source_text and event.type() == event.Type.KeyPress:
+            if event.key() == Qt.Key.Key_V and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+                self.is_pasting = True
+                # Получаем текст из буфера обмена
+                clipboard_text = QApplication.clipboard().text()
+                if clipboard_text.strip():
+                    # Определяем язык текста
+                    self.detect_language(clipboard_text)
+        return super().eventFilter(obj, event)
+
+    def detect_language(self, text):
+        try:
+            detected_lang = detect(text)
+            if detected_lang:
+                # Проверяем, поддерживается ли язык
+                if detected_lang in LANGUAGE_TRANSLATIONS:
+                    # Находим название языка в текущей локализации
+                    lang_name = LANGUAGE_TRANSLATIONS[detected_lang][self.current_language]
+                    if lang_name and lang_name != self.source_lang_btn.text():
+                        # Показываем диалог подтверждения
+                        reply = QMessageBox.question(
+                            self,
+                            UI_TRANSLATIONS[self.current_language]['language_detection'],
+                            UI_TRANSLATIONS[self.current_language]['language_detection_message'].format(lang_name),
+                            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                            QMessageBox.StandardButton.Yes
+                        )
+                        if reply == QMessageBox.StandardButton.Yes:
+                            self.source_lang_btn.setText(lang_name)
+                            self.update_speaker_buttons()
+                else:
+                    print(f"Language {detected_lang} not found in LANGUAGE_TRANSLATIONS")  # Отладочная информация
+                    self.statusBar.showMessage(
+                        UI_TRANSLATIONS[self.current_language]['language_not_supported'],
+                        3000
+                    )
+        except LangDetectException as e:
+            print(f"Language detection error: {str(e)}")  # Отладочная информация
+            self.statusBar.showMessage(
+                UI_TRANSLATIONS[self.current_language]['language_detection_failed'],
+                3000
+            )
+        finally:
+            self.is_pasting = False
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
