@@ -1,4 +1,3 @@
 - disable speaker icon if unsuppirted language
-- автоматические определение языка при вставке
 - адаптив
 - половина язков не работает

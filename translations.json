@@ -1,170 +1,177 @@
 [
   {
-    "timestamp": "2025-05-17 22:43:56",
-    "source_text": "This is English",
-    "translated_text": "Это английский",
-    "source_lang": "en",
+    "timestamp": "2025-05-22 09:11:06",
+    "source_text": "ตอนนี้ภาษาควรเปลี่ยนสถานที่และการแปลควรเปลี่ยนจากภาษาอังกฤษเป็นภาษารัสเซีย แจ้งให้เราทราบหากไม่ได้ผล",
+    "translated_text": "Теперь язык должен изменить местоположение, и перевод должен измениться с английского на русский. Дайте нам знать, если это не сработает.",
+    "source_lang": "th",
     "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 22:43:51",
-    "source_text": "This is English",
-    "translated_text": "Это английский",
-    "source_lang": "en",
-    "target_lang": "ru"
+    "timestamp": "2025-05-22 09:10:58",
+    "source_text": "Теперь языки должны поменяться местами, и перевод должен идти с английского на русский. Дайте знать, если это не работает.",
+    "translated_text": "ตอนนี้ภาษาควรเปลี่ยนสถานที่และการแปลควรเปลี่ยนจากภาษาอังกฤษเป็นภาษารัสเซีย แจ้งให้เราทราบหากไม่ได้ผล",
+    "source_lang": "ru",
+    "target_lang": "th"
   },
   {
-    "timestamp": "2025-05-17 22:43:50",
-    "source_text": "This is English",
-    "translated_text": "Это английский",
-    "source_lang": "en",
-    "target_lang": "ru"
-  },
-  {
-    "timestamp": "2025-05-17 22:43:46",
-    "source_text": "это английский язык",
-    "translated_text": "This is English",
+    "timestamp": "2025-05-22 09:10:46",
+    "source_text": "Н.",
+    "translated_text": "N.",
     "source_lang": "ru",
     "target_lang": "en"
   },
   {
-    "timestamp": "2025-05-17 22:43:41",
-    "source_text": "это английский языкэто английский язык",
-    "translated_text": "This is English is English",
-    "source_lang": "ru",
-    "target_lang": "en"
-  },
-  {
-    "timestamp": "2025-05-17 22:43:38",
-    "source_text": "это английский язык",
-    "translated_text": "This is English",
-    "source_lang": "ru",
-    "target_lang": "en"
-  },
-  {
-    "timestamp": "2025-05-17 22:43:37",
-    "source_text": "это английский язык",
-    "translated_text": "This is English",
-    "source_lang": "ru",
-    "target_lang": "en"
-  },
-  {
-    "timestamp": "2025-05-17 22:42:28",
-    "source_text": "it is english language",
-    "translated_text": "это английский язык",
+    "timestamp": "2025-05-22 09:09:19",
+    "source_text": "не найдено в",
+    "translated_text": "Н.",
     "source_lang": "en",
     "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 22:40:20",
-    "source_text": "it is english language",
-    "translated_text": "It is English Language",
-    "source_lang": "tl",
+    "timestamp": "2025-05-22 09:09:14",
+    "source_text": "Not found in",
+    "translated_text": "Не найдено в",
+    "source_lang": "en",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-22 09:09:11",
+    "source_text": "не найдено в",
+    "translated_text": "Not found in",
+    "source_lang": "ru",
     "target_lang": "en"
   },
   {
-    "timestamp": "2025-05-17 21:26:53",
-    "source_text": "Привет, как дела?",
-    "translated_text": "ПРИО, КАК ДЕЛА?",
+    "timestamp": "2025-05-22 09:09:01",
+    "source_text": "not found in",
+    "translated_text": "не найдено в",
     "source_lang": "en",
     "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:26:43",
-    "source_text": "Привет, как дела?",
-    "translated_text": "ПРИО, КАК ДЕЛА?",
+    "timestamp": "2025-05-22 09:08:59",
+    "source_text": "не найдено в",
+    "translated_text": "Not found in",
+    "source_lang": "ru",
+    "target_lang": "en"
+  },
+  {
+    "timestamp": "2025-05-22 09:08:56",
+    "source_text": "not found in",
+    "translated_text": "не найдено в",
     "source_lang": "en",
     "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:25:22",
-    "source_text": "hello",
-    "translated_text": "привет",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 09:08:08",
+    "source_text": "not found in",
+    "translated_text": "not found in",
+    "source_lang": "en",
+    "target_lang": "en"
   },
   {
-    "timestamp": "2025-05-17 21:23:48",
-    "source_text": "Привет, как дела?",
-    "translated_text": "Hi, how are you?",
-    "source_lang": "ru_ru",
-    "target_lang": "en_ru"
+    "timestamp": "2025-05-22 09:08:05",
+    "source_text": "Это должно решить проблему с неправильным направлением перевода. Теперь, если вы вставите английский текст, и программа определит его как английский, после вашего подтверждения языки автоматически поменяются местами, и перевод будет идти с английского на русский.",
+    "translated_text": "This should solve the problem with the wrong direction of the translation. Now, if you insert the English text, and the program will define it as English, after your confirmation, the languages ​​will automatically change places, and the translation will go from English to Russian.",
+    "source_lang": "ru",
+    "target_lang": "en"
   },
   {
-    "timestamp": "2025-05-17 21:23:48",
-    "source_text": "Привет, как дела?",
-    "translated_text": "Hi, how are you?",
-    "source_lang": "ru_ru",
-    "target_lang": "en_ru"
+    "timestamp": "2025-05-22 09:07:57",
+    "source_text": "Это должно решить проблему с неправильным направлением перевода. Теперь, если вы вставите английский текст, и программа определит его как английский, после вашего подтверждения языки автоматически поменяются местами, и перевод будет идти с английского на русский.",
+    "translated_text": "Это должно решить проблему с неправильным направлением перевода. Теперь, если вы вставите английский текст, и программа определит его как английский, после вашего подтверждения языки автоматически поменяются местами, и перевод будет идти с английского на русский.",
+    "source_lang": "ru",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:23:46",
-    "source_text": "Hello, how are you?",
-    "translated_text": "Привет, как дела?",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 09:07:56",
+    "source_text": "Это должно решить проблему с неправильным направлением перевода. Теперь, если вы вставите английский текст, и программа определит его как английский, после вашего подтверждения языки автоматически поменяются местами, и перевод будет идти с английского на русский.",
+    "translated_text": "Это должно решить проблему с неправильным направлением перевода. Теперь, если вы вставите английский текст, и программа определит его как английский, после вашего подтверждения языки автоматически поменяются местами, и перевод будет идти с английского на русский.",
+    "source_lang": "ru",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:23:43",
-    "source_text": "Hello, how are youHello, how are you?",
-    "translated_text": "Привет, как дела, как дела?",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 09:06:36",
+    "source_text": "Это должно решить проблему с неправильным направлением перевода. Теперь, если вы вставите английский текст, и программа определит его как английский, после вашего подтверждения языки автоматически поменяются местами, и перевод будет идти с английского на русский.",
+    "translated_text": "Это должно решить проблему с неправильным направлением перевода. Теперь, если вы вставите английский текст, и программа определит его как английский, после вашего подтверждения языки автоматически поменяются местами, и перевод будет идти с английского на русский.",
+    "source_lang": "ru",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:23:42",
-    "source_text": "Hello, how are you",
-    "translated_text": "Привет, как дела",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 09:02:04",
+    "source_text": "Note You can check the supported languages of each translator by calling the get_supported_languages function.",
+    "translated_text": "Note You can check the supported languages of each translator by calling the get_supported_languages function.",
+    "source_lang": "en",
+    "target_lang": "en"
   },
   {
-    "timestamp": "2025-05-17 21:23:41",
-    "source_text": "Hello, how are you?",
-    "translated_text": "Привет, как дела?",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 09:01:56",
+    "source_text": "Note You can check the supported languages of each translator by calling the get_supported_languages function.",
+    "translated_text": "Примечание. Вы можете проверить поддерживаемые языки каждого переводчика, вызвав функцию get_supported_languages.",
+    "source_lang": "en",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:23:39",
-    "source_text": "Hello, how are you?",
-    "translated_text": "Привет, как дела?",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 09:01:39",
+    "source_text": "говно",
+    "translated_text": "Гов",
+    "source_lang": "en",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:23:38",
-    "source_text": "Hi, how are you?",
-    "translated_text": "Привет, как дела?",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 09:01:27",
+    "source_text": "nigga",
+    "translated_text": "ниггер",
+    "source_lang": "en",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:23:27",
-    "source_text": "Привет, как дела?",
-    "translated_text": "Hi, how are you?",
-    "source_lang": "ru_ru",
-    "target_lang": "en_ru"
+    "timestamp": "2025-05-22 08:59:24",
+    "source_text": "nigga",
+    "translated_text": "негр",
+    "source_lang": "en",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:23:21",
-    "source_text": "Привет, как дела?",
-    "translated_text": "Hi, how are you?",
-    "source_lang": "ru_ru",
-    "target_lang": "en_ru"
+    "timestamp": "2025-05-22 08:59:21",
+    "source_text": "cat",
+    "translated_text": "кот",
+    "source_lang": "en",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:22:36",
-    "source_text": "Если пользователь нажимает \"Да\", язык автоматически меняется и начинается перевод\n",
-    "translated_text": "If the user presses yes, the tongue automatically changes and translation begins",
-    "source_lang": "ru_ru",
-    "target_lang": "en_ru"
+    "timestamp": "2025-05-22 08:59:18",
+    "source_text": "cat",
+    "translated_text": "кот",
+    "source_lang": "en",
+    "target_lang": "ru"
   },
   {
-    "timestamp": "2025-05-17 21:22:28",
-    "source_text": "hello",
-    "translated_text": "привет",
-    "source_lang": "en_ru",
-    "target_lang": "ru_ru"
+    "timestamp": "2025-05-22 08:52:15",
+    "source_text": "кот",
+    "translated_text": "แมว",
+    "source_lang": "ru",
+    "target_lang": "th"
+  },
+  {
+    "timestamp": "2025-05-22 08:52:14",
+    "source_text": "Word-Faйl",
+    "translated_text": "คำพูด",
+    "source_lang": "ru",
+    "target_lang": "th"
+  },
+  {
+    "timestamp": "2025-05-22 08:52:08",
+    "source_text": "Word-файл",
+    "translated_text": "Word-Faйl",
+    "source_lang": "th",
+    "target_lang": "ru"
+  },
+  {
+    "timestamp": "2025-05-22 08:50:37",
+    "source_text": "Word-файл",
+    "translated_text": "Word-Faйl",
+    "source_lang": "en",
+    "target_lang": "ru"
   }
 ]

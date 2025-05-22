@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QListWidget)
 from PySide6.QtCore import Qt, QThread, Signal, QTimer
 from PySide6.QtGui import QIcon
+# from deep_translator import GoogleTranslator
 from deep_translator import GoogleTranslator
 from gtts import gTTS
 import pygame
@@ -186,8 +187,8 @@ GTTTS_SUPPORTED_LANGUAGES = {
     'uk': 'uk',
     'ur': 'ur',
     'vi': 'vi',
-    'zh-cn': 'zh-CN',
-    'zh-tw': 'zh-TW'
+    'zh-cn': 'zh-cn',
+    'zh-tw': 'zh-tw'
 }
 
 class TranslatorThread(QThread):
@@ -338,7 +339,7 @@ class TranslatorApp(QMainWindow):
         self.target_speak_btn.setIcon(QIcon("icons/speaker.svg"))
         self.target_speak_btn.clicked.connect(lambda: self.speak_text(
             self.target_text.toPlainText(),
-            next(code for code, name in LANGUAGES.items() if name == self.target_lang_btn.text())
+            next(code for code, names in LANGUAGE_TRANSLATIONS.items() if names[self.current_language] == self.target_lang_btn.text())
         ))
         
         self.target_copy_btn = QPushButton()
@@ -1002,8 +1003,22 @@ class TranslatorApp(QMainWindow):
                             QMessageBox.StandardButton.Yes
                         )
                         if reply == QMessageBox.StandardButton.Yes:
-                            self.source_lang_btn.setText(lang_name)
+                            # Сохраняем текущие языки
+                            current_source = self.source_lang_btn.text()
+                            current_target = self.target_lang_btn.text()
+                            
+                            # Если определенный язык совпадает с текущим целевым языком,
+                            # то меняем их местами
+                            if lang_name == current_target:
+                                self.source_lang_btn.setText(current_target)
+                                self.target_lang_btn.setText(current_source)
+                            else:
+                                # Иначе просто устанавливаем определенный язык как исходный
+                                self.source_lang_btn.setText(lang_name)
+                            
                             self.update_speaker_buttons()
+                            # Запускаем перевод с новыми языками
+                            self.do_translation()
                 else:
                     print(f"Language {detected_lang} not found in LANGUAGE_TRANSLATIONS")  # Отладочная информация
                     self.statusBar.showMessage(
