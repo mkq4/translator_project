@@ -9,7 +9,7 @@ from PySide6.QtGui import QIcon
 # from deep_translator import GoogleTranslator
 from deep_translator import GoogleTranslator
 from gtts import gTTS
-import pygame
+from playsound import playsound
 import tempfile
 import os
 from datetime import datetime
@@ -222,8 +222,6 @@ class TranslatorApp(QMainWindow):
         self.setWindowTitle(UI_TRANSLATIONS[self.current_language]['window_title'])
         self.setGeometry(100, 100, 800, 400)
         
-        # Инициализация pygame для воспроизведения звука
-        pygame.mixer.init()
         self.current_audio_file = None
         
         # Инициализация хранилища переводов
@@ -720,42 +718,36 @@ class TranslatorApp(QMainWindow):
         if hasattr(self, 'translation_thread'):
             self.translation_thread = None
 
+
     def speak_text(self, text, lang):
         if not text.strip():
             return
-            
+
         try:
-            # Очищаем предыдущий временный файл
+            # Удалить старый аудиофайл
             if self.current_audio_file and os.path.exists(self.current_audio_file):
                 try:
                     os.remove(self.current_audio_file)
                 except:
                     pass
 
-            # Создаем временный файл
+            # Сохраняем аудио во временный файл
             with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
                 self.current_audio_file = temp_file.name
-            
-            # Преобразуем код языка для gTTS
-            gtts_lang = lang
-            if lang.endswith('_ru'):
-                gtts_lang = lang.split('_')[0]
-            
-            # Создаем и сохраняем аудио
-            tts = gTTS(text=text, lang=gtts_lang)
-            tts.save(self.current_audio_file)
-            
+                gtts_lang = lang.split('_')[0] if '_' in lang else lang
+                tts = gTTS(text=text, lang=gtts_lang)
+                tts.save(self.current_audio_file)
+
             # Воспроизводим
-            pygame.mixer.music.load(self.current_audio_file)
-            pygame.mixer.music.play()
-            
+            playsound(self.current_audio_file)
+
             self.statusBar.showMessage(UI_TRANSLATIONS[self.current_language]['playback_started'], 3000)
-            
+
         except Exception as e:
             self.statusBar.showMessage(
-                UI_TRANSLATIONS[self.current_language]['playback_error'].format(str(e)), 
+                UI_TRANSLATIONS[self.current_language]['playback_error'].format(str(e)),
                 3000
-            )
+        )
 
     def copy_text(self, text):
         if text.strip():
