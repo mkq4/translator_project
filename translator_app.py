@@ -634,10 +634,21 @@ class TranslatorApp(QMainWindow):
         self.populate_language_list(target)
 
     def select_language(self, target, item):
+        selected_language_name = item.text()
+        
         if target == 'source':
-            self.source_lang_btn.setText(item.text())
-        else:
-            self.target_lang_btn.setText(item.text())
+            current_target_language_name = self.target_lang_btn.text()
+            if selected_language_name == current_target_language_name:
+                self.swap_languages()
+            else:
+                self.source_lang_btn.setText(selected_language_name)
+        else: # target == 'target'
+            current_source_language_name = self.source_lang_btn.text()
+            if selected_language_name == current_source_language_name:
+                self.swap_languages()
+            else:
+                self.target_lang_btn.setText(selected_language_name)
+                
         self.stack.setCurrentWidget(self.main_screen)
         self.update_speaker_buttons()  # Обновляем состояние кнопок speaker
         self.do_translation()

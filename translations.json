@@ -1,5 +1,12 @@
 [
   {
+    "timestamp": "2025-06-04 00:59:17",
+    "source_text": "лоиол",
+    "translated_text": "лоиол",
+    "source_lang": "ru",
+    "target_lang": "ru"
+  },
+  {
     "timestamp": "2025-05-28 22:00:04",
     "source_text": "hello",
     "translated_text": "привет",
