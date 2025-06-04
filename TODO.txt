@@ -1,3 +1,0 @@
-- disable speaker icon if unsuppirted language
-- адаптив
-- половина язков не работает

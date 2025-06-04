@@ -1,3 +1,5 @@
+# storage.py
+
 import json
 import os
 from datetime import datetime
@@ -13,6 +15,10 @@ class TranslationsStorage:
                 json.dump([], f)
 
     def save_translation(self, source_text, translated_text, source_lang, target_lang):
+
+        if not translated_text.strip():
+            return
+
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         translation = {
             'timestamp': timestamp,
@@ -21,9 +27,8 @@ class TranslationsStorage:
             'source_lang': source_lang,
             'target_lang': target_lang
         }
-        
         translations = self._load_translations()
-        translations.insert(0, translation)  # Добавляем новую запись в начало
+        translations.insert(0, translation)
         self._save_translations(translations)
 
     def get_translations(self, limit=50):
@@ -48,4 +53,4 @@ class TranslationsStorage:
 
     def _save_translations(self, translations):
         with open(self.file_path, 'w', encoding='utf-8') as f:
-            json.dump(translations, f, ensure_ascii=False, indent=2) 
+            json.dump(translations, f, ensure_ascii=False, indent=2)
