@@ -212,10 +212,19 @@ class TranslatorApp(QMainWindow):
 
     def change_interface_lang(self, lang_code):
         """
-        Меняет язык интерфейса и обновляет тексты.
+        Changes UI lang and updates texts.
         """
         self.current_interface_lang = lang_code
         self.update_interface_texts()
+
+        previous = self.stack.currentWidget()
+        
+        if previous != self.main_screen:  # workaround
+            self.stack.setCurrentWidget(self.main_screen)    
+        else:
+            self.stack.setCurrentWidget(self.history_screen)
+
+        self.stack.setCurrentWidget(previous)
 
     def on_source_text_changed(self):
         """
@@ -226,19 +235,20 @@ class TranslatorApp(QMainWindow):
 
     def do_translation(self):
         """
-        Запускает поток-переводчик.
+        Starts translation thread.
         """
         text = self.source_text.toPlainText()
-        if self.translation_thread and self.translation_thread.isRunning():
-            self.translation_thread.terminate()
+        if len(text.strip()) > 0:  # show msg if text not empty
+            if self.translation_thread and self.translation_thread.isRunning():
+                self.translation_thread.terminate()
 
-        self.status_bar.showMessage(
-            UI_TRANSLATIONS[self.current_interface_lang]['translation_started'], 2000
-        )
+            self.status_bar.showMessage(
+                UI_TRANSLATIONS[self.current_interface_lang]['translation_started'], 2000
+            )
 
-        self.translation_thread = TranslatorThread(text, self.source_lang_code, self.target_lang_code)
-        self.translation_thread.finished.connect(self.on_translation_finished)
-        self.translation_thread.start()
+            self.translation_thread = TranslatorThread(text, self.source_lang_code, self.target_lang_code)
+            self.translation_thread.finished.connect(self.on_translation_finished)
+            self.translation_thread.start()
 
     def on_translation_finished(self, translated_text, exception):
         """
