@@ -12,13 +12,13 @@ from services.speak import speak_text
 class HistoryScreen(QWidget):
     def __init__(self, parent):
         super().__init__()
-        self.parent = parent  # ссылка на TranslatorApp
+        self.parent = parent  # link at TranslatorApp
         self._build_ui()
 
     def _build_ui(self):
         self.layout = QVBoxLayout(self)
 
-        # Верхний бар: заголовок, кнопка очистки, кнопка закрытия
+        #top bar
         top_bar = QHBoxLayout()
         self.title_label = QLabel(UI_TRANSLATIONS[self.parent.current_interface_lang]['history_title'])
         self.title_label.setStyleSheet("font-size: 18px; font-weight: bold;")
@@ -38,7 +38,7 @@ class HistoryScreen(QWidget):
 
         self.layout.addLayout(top_bar)
 
-        # Скролл для списка карточек переводов
+        #scroll
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -48,7 +48,7 @@ class HistoryScreen(QWidget):
         self.container_layout.setAlignment(Qt.AlignTop)
         self.container_layout.setSpacing(10)
 
-        # Если истории нет — показываем метку
+        #if no history - default (no history)
         self.empty_label = QLabel(UI_TRANSLATIONS[self.parent.current_interface_lang]['no_history'])
         self.empty_label.setStyleSheet("color: #666; font-size: 14px;")
         self.empty_label.setAlignment(Qt.AlignCenter)
@@ -59,21 +59,16 @@ class HistoryScreen(QWidget):
         self.layout.addWidget(scroll)
 
     def update_texts(self):
-        """
-        При смене языка интерфейса обновляем все статичные надписи.
-        """
         t = UI_TRANSLATIONS[self.parent.current_interface_lang]
         self.title_label.setText(t['history_title'])
         self.clear_btn.setText(t['clear_history'])
         self.empty_label.setText(t['no_history'])
-        # Перезагружаем историю для обновления названий языков
+        
+        #update history
         self.load_history()
 
     def load_history(self):
-        """
-        Загружает до 50 последних переводов из storage и отображает их.
-        """
-        # Удаляем все карточки, кроме empty_label
+        #delete all cards
         for i in reversed(range(self.container_layout.count())):
             widget = self.container_layout.itemAt(i).widget()
             if widget and widget != self.empty_label:
@@ -87,7 +82,7 @@ class HistoryScreen(QWidget):
         if not has_data:
             return
 
-        # Текущий язык интерфейса
+        #current interface lang
         interface_lang = self.parent.current_interface_lang
 
         for idx, entry in enumerate(translations):
@@ -102,9 +97,9 @@ class HistoryScreen(QWidget):
             """)
             card_layout = QVBoxLayout(card)
 
-            # Верхняя строка: языки и кнопка удаления
+            #top string
             top = QHBoxLayout()
-            # Извлекаем локализованные названия языков
+            #getting langs
             src_name = LANGUAGES.get(entry['source_lang'], {}).get(interface_lang, entry['source_lang'])
             tgt_name = LANGUAGES.get(entry['target_lang'], {}).get(interface_lang, entry['target_lang'])
             lang_label = QLabel(f"{src_name} → {tgt_name}")
@@ -119,15 +114,15 @@ class HistoryScreen(QWidget):
 
             card_layout.addLayout(top)
 
-            # Время
+            #time
             time_label = QLabel(entry['timestamp'])
             time_label.setStyleSheet("color: #666;")
             card_layout.addWidget(time_label)
 
-            # Тексты (исходный и переведённый)
+            #texts
             texts_layout = QHBoxLayout()
 
-            # Исходный текст
+            #from text
             src_panel = QVBoxLayout()
             src_text = QPlainTextEdit()
             src_text.setPlainText(entry['source_text'])
@@ -156,7 +151,7 @@ class HistoryScreen(QWidget):
             src_panel.addLayout(src_btns)
             texts_layout.addLayout(src_panel)
 
-            # Переведённый текст
+            #result text
             tgt_panel = QVBoxLayout()
             tgt_text = QPlainTextEdit()
             tgt_text.setPlainText(entry['translated_text'])

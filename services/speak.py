@@ -12,8 +12,6 @@ def speak_text(text: str, lang: str, on_status=None):
 
     current_audio_file = None
     try:
-        print(f"Input text: {text!r}")
-        print(f"Language: {lang}")
 
         if lang not in gtts_langs:
             if on_status:

@@ -21,42 +21,42 @@ class TranslatorApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Исходный язык и целевой (по умолчанию)
-        self.source_lang_code = 'en'
+        #default langs
+        self.source_lang_code = 'en' 
         self.target_lang_code = 'ru'
 
-        # Язык интерфейса (по умолчанию — русский)
+        #interface lang
         self.current_interface_lang = 'ru'
 
-        # Хранилище переводов
+        #storage
         self.storage = TranslationsStorage()
 
-        # Таймер задержки перед переводом
+        #timers
         self.translation_timer = QTimer()
         self.translation_timer.setSingleShot(True)
         self.translation_timer.timeout.connect(self.do_translation)
 
-        # Поток-переводчик
+        #thread translate 
         self.translation_thread = None
 
-        # Основные экраны в стеке
+        #screens stack
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
 
-        # Создаём экраны
+        #creating screens
         self.main_screen = QWidget()
         self.history_screen = HistoryScreen(self)
         self.source_lang_selector = LanguageSelector(self, 'source')
         self.target_lang_selector = LanguageSelector(self, 'target')
 
-        # Настраиваем UI
+        #setting up ui
         self.setup_main_screen()
         self.stack.addWidget(self.main_screen)
         self.stack.addWidget(self.history_screen)
         self.stack.addWidget(self.source_lang_selector)
         self.stack.addWidget(self.target_lang_selector)
 
-        # Сразу показываем главное окно
+        #main screen as base
         self.stack.setCurrentWidget(self.main_screen)
         self.update_interface_texts()
         self.update_speaker_buttons()
@@ -66,7 +66,7 @@ class TranslatorApp(QMainWindow):
         self.setGeometry(100, 100, 700, 300)
         layout = QVBoxLayout(self.main_screen)
 
-        # Панель выбора языков
+        #langs select
         lang_panel = QHBoxLayout()
         lang_panel.addStretch()
 
@@ -88,10 +88,9 @@ class TranslatorApp(QMainWindow):
         lang_panel.addStretch()
         layout.addLayout(lang_panel)
 
-        # Панель исходного и целевого текстов
         texts_layout = QHBoxLayout()
 
-        # Левая колонка
+        # left col
         left_layout = QVBoxLayout()
 
         self.source_text = QPlainTextEdit()
@@ -120,7 +119,7 @@ class TranslatorApp(QMainWindow):
 
         texts_layout.addLayout(left_layout)
 
-        # Правая колонка
+        # rght col
         right_layout = QVBoxLayout()
 
         self.target_text = QPlainTextEdit()
@@ -150,7 +149,7 @@ class TranslatorApp(QMainWindow):
         texts_layout.addLayout(right_layout)
         layout.addLayout(texts_layout)
 
-        # Статус-бар и язык интерфейса
+        #status bar && interface lang
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
 
@@ -170,39 +169,33 @@ class TranslatorApp(QMainWindow):
         self.update_lang_buttons()
 
     def update_interface_texts(self):
-        """
-        Обновляем все тексты интерфейса в соответствии с current_interface_lang.
-        """
         t = UI_TRANSLATIONS[self.current_interface_lang]
         self.setWindowTitle(t['window_title'])
 
-        # Обновляем плейсхолдеры, только если поля пусты
+        #update placeholders
         if not self.source_text.toPlainText():
             self.source_text.setPlaceholderText(t['source_placeholder'])
 
         if not self.target_text.toPlainText():
             self.target_text.setPlaceholderText(t['target_placeholder'])
 
-        # Обновляем текст "Язык интерфейса"
+        #update some text
         self.interface_lang_label.setText(t['interface_language'])
 
         self.btn_ru.setText('Русский')
         self.btn_en.setText('English')
         self.update_lang_buttons()
 
-        # Обновляем текст кнопок языков
+        #update text button lang
         self.src_btn.setText(LANGUAGES[self.source_lang_code][self.current_interface_lang])
         self.tgt_btn.setText(LANGUAGES[self.target_lang_code][self.current_interface_lang])
 
-        # Обновляем тексты на других экранах
+        #update text at other langs
         self.history_screen.update_texts()
         self.source_lang_selector.update_texts()
         self.target_lang_selector.update_texts()
 
     def update_lang_buttons(self):
-        """
-        Подсветка кнопки выбранного языка интерфейса.
-        """
         if self.current_interface_lang == 'ru':
             self.btn_ru.setEnabled(False)
             self.btn_en.setEnabled(True)
@@ -227,16 +220,10 @@ class TranslatorApp(QMainWindow):
         self.stack.setCurrentWidget(previous)
 
     def on_source_text_changed(self):
-        """
-        Запускает таймер перед переводом (500 мс).
-        """
         self.translation_timer.start(500)
         self.update_speaker_buttons()
 
     def do_translation(self):
-        """
-        Starts translation thread.
-        """
         text = self.source_text.toPlainText()
         if len(text.strip()) > 0:  # show msg if text not empty
             if self.translation_thread and self.translation_thread.isRunning():
@@ -251,9 +238,6 @@ class TranslatorApp(QMainWindow):
             self.translation_thread.start()
 
     def on_translation_finished(self, translated_text, exception):
-        """
-        Обработка результата перевода: показываем текст, сохраняем в историю или показываем ошибку.
-        """
         if exception:
             self.status_bar.showMessage(
                 UI_TRANSLATIONS[self.current_interface_lang]['translation_error'].format(str(exception)),
@@ -276,9 +260,6 @@ class TranslatorApp(QMainWindow):
         self.update_speaker_buttons()
 
     def speak_source(self):
-        """
-        Озвучивает исходный текст (если язык поддерживается).
-        """
         lang = self.source_lang_code        
         speak_text(
             self.source_text.toPlainText(),
@@ -289,9 +270,6 @@ class TranslatorApp(QMainWindow):
         )
 
     def speak_target(self):
-        """
-        Озвучивает переведённый текст.
-        """
         lang = self.target_lang_code        
         speak_text(
             self.target_text.toPlainText(),
@@ -302,9 +280,6 @@ class TranslatorApp(QMainWindow):
         )
 
     def copy_to_clipboard(self, text):
-        """
-        Копирует любой текст в буфер обмена и показывает сообщение.
-        """
         clipboard = QApplication.clipboard()
         clipboard.setText(text)
         self.status_bar.showMessage(
@@ -312,9 +287,6 @@ class TranslatorApp(QMainWindow):
         )
 
     def clear_source_text(self):
-        """
-        Очищает поле исходного текста.
-        """
         self.source_text.clear()
         self.target_text.clear()
         self.status_bar.showMessage(
@@ -323,16 +295,10 @@ class TranslatorApp(QMainWindow):
         self.update_speaker_buttons()
 
     def show_history(self):
-        """
-        Переходим на экран истории.
-        """
         self.history_screen.load_history()
         self.stack.setCurrentWidget(self.history_screen)
 
     def show_language_selector(self, which):
-        """
-        Открывает экран выбора языка: which = 'source' или 'target'.
-        """
         if which == 'source':
             self.source_lang_selector.populate_language_list(self.source_lang_code)
             self.stack.setCurrentWidget(self.source_lang_selector)
@@ -341,9 +307,6 @@ class TranslatorApp(QMainWindow):
             self.stack.setCurrentWidget(self.target_lang_selector)
 
     def swap_languages(self):
-        """
-        Меняет местами исходный и целевой языки.
-        """
         self.source_lang_code, self.target_lang_code = self.target_lang_code, self.source_lang_code
         self.src_btn.setText(LANGUAGES[self.source_lang_code][self.current_interface_lang])
         self.tgt_btn.setText(LANGUAGES[self.target_lang_code][self.current_interface_lang])
@@ -351,12 +314,7 @@ class TranslatorApp(QMainWindow):
         self.target_text.clear()
         self.update_speaker_buttons()
 
-    def update_speaker_buttons(self):
-        """
-        Обновляет доступность кнопок озвучивания:
-        - язык должен поддерживаться
-        - текст должен быть непустым
-        """
+    def update_speaker_buttons(self): #active or not speaker buttons
         src_supported = self.source_lang_code in gtts_langs
         tgt_supported = self.target_lang_code in gtts_langs
 
@@ -366,7 +324,7 @@ class TranslatorApp(QMainWindow):
         self.src_speak_btn.setEnabled(src_supported and bool(src_text))
         self.tgt_speak_btn.setEnabled(tgt_supported and bool(tgt_text))
 
-        # Подсказки
+        #hints
         if not src_supported:
             self.src_speak_btn.setToolTip(UI_TRANSLATIONS[self.current_interface_lang]['tts_not_supported'])
         elif not src_text:
@@ -382,9 +340,6 @@ class TranslatorApp(QMainWindow):
             self.tgt_speak_btn.setToolTip("")
 
     def change_selected_language(self, which, lang_code):
-        """
-        Вызывается из LanguageSelector, чтобы задать новый язык.
-        """
         if which == 'source':
             self.source_lang_code = lang_code
             self.src_btn.setText(LANGUAGES[lang_code][self.current_interface_lang])
@@ -392,28 +347,18 @@ class TranslatorApp(QMainWindow):
             self.target_lang_code = lang_code
             self.tgt_btn.setText(LANGUAGES[lang_code][self.current_interface_lang])
 
-        # Возвращаемся на главное окно и сразу переводим (если есть текст)
         self.stack.setCurrentWidget(self.main_screen)
         self.on_source_text_changed()
 
     def delete_history_item(self, index):
-        """
-        Удаляет одну запись из истории (вызывается из HistoryScreen).
-        """
         self.storage.delete_translation(index)
         self.history_screen.load_history()
 
     def clear_history(self):
-        """
-        Очищает всю историю (вызывается из HistoryScreen).
-        """
         self.storage.clear_translations()
         self.history_screen.load_history()
 
     def closeEvent(self, event):
-        """
-        Когда окно закрывается — можно делать что-то ещё, но пока просто закрываем.
-        """
         event.accept()
 
     def delete_translation(self, index: int):

@@ -9,11 +9,7 @@ from PySide6.QtCore import Qt
 from constants import UI_TRANSLATIONS, LANGUAGES
 
 class LanguageSelector(QWidget):
-    def __init__(self, parent, target: str):
-        """
-        target: 'source' или 'target'
-        parent: экземпляр TranslatorApp
-        """
+    def __init__(self, parent, target: str): # init langs screen
         super().__init__()
         self.parent = parent
         self.target = target
@@ -22,7 +18,7 @@ class LanguageSelector(QWidget):
     def _build_ui(self):
         self.layout = QVBoxLayout(self)
 
-        # Верхний бар: заголовок экрана и кнопка закрыть
+        #top bar
         top_bar = QHBoxLayout()
         key = 'source_language' if self.target == 'source' else 'target_language'
         self.title_label = QLabel(UI_TRANSLATIONS[self.parent.current_interface_lang][key])
@@ -39,7 +35,7 @@ class LanguageSelector(QWidget):
 
         self.layout.addLayout(top_bar)
 
-        # Строка поиска
+        #search input
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText(
             UI_TRANSLATIONS[self.parent.current_interface_lang]['search_placeholder']
@@ -47,44 +43,42 @@ class LanguageSelector(QWidget):
         self.search_input.textChanged.connect(self._filter_languages)
         self.layout.addWidget(self.search_input)
 
-        # Список языков
+        #langs list
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self._select_language)
         self.layout.addWidget(self.list_widget)
 
-        # Заполняем список всеми языками
+        #push langs at list
         self.populate_language_list(self._get_current_code())
 
-    def update_texts(self):
-        """
-        При смене языка интерфейса изменяем плейсхолдеры, заголовок и список языков.
-        """
-        t = UI_TRANSLATIONS[self.parent.current_interface_lang]
+    def update_texts(self): #updating interface
+        t = UI_TRANSLATIONS[self.parent.current_interface_lang] 
         key = 'source_language' if self.target == 'source' else 'target_language'
         self.title_label.setText(t[key])
         self.search_input.setPlaceholderText(t['search_placeholder'])
-        # Перезаполняем список с локализованными названиями
+
+        #repush langs at list
         self.populate_language_list(self._get_current_code())
 
     def populate_language_list(self, current_code: str = ""):
         self.list_widget.clear()
         
-        # Текущий язык интерфейса
+        #current interface lang
         interface_lang = self.parent.current_interface_lang
         
-        # Сортируем языки по локализованным названиям
+        #sorting langs
         sorted_items = sorted(
             LANGUAGES.items(),
             key=lambda x: x[1][interface_lang].lower()
         )
-        # Перемещаем текущий язык в начало
+        #set current lang at start
         sorted_items = sorted(
             sorted_items,
             key=lambda x: x[0] != current_code
         )
 
         for code, names in sorted_items:
-            # Используем название на текущем языке интерфейса
+            #using correct lang names
             name = names.get(interface_lang, code)
             item = QListWidgetItem(name)
             item.setData(Qt.UserRole, code)
@@ -93,18 +87,14 @@ class LanguageSelector(QWidget):
                 item.setSelected(True)
 
     def _get_current_code(self) -> str:
-        """
-        Возвращает текущий код языка для данного target (source/target).
-        """
+        #return current lang code for target
         if self.target == 'source':
             return self.parent.source_lang_code
         else:
             return self.parent.target_lang_code
 
     def _filter_languages(self, text: str):
-        """
-        Скрытие / показ элементов списка по совпадению с текстом поиска.
-        """
+        #filter. on input change
         lower = text.lower()
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
@@ -116,7 +106,7 @@ class LanguageSelector(QWidget):
             code = item.data(Qt.UserRole)
             if code is None:
                 return
-            # Текущий язык интерфейса
+            #current lang interface
             interface_lang = self.parent.current_interface_lang
             if self.target == 'source':
                 if code == self.parent.target_lang_code:

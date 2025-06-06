@@ -4,9 +4,7 @@ from PySide6.QtCore import QThread, Signal
 from deep_translator import GoogleTranslator
 
 class TranslatorThread(QThread):
-    """
-    QThread: переводит текст в фоне и по завершении выдаёт сигнал finished(translated_text, exception).
-    """
+    #translate thread
     finished = Signal(str, Exception)
 
     def __init__(self, text, source_lang, target_lang):
@@ -20,7 +18,7 @@ class TranslatorThread(QThread):
             if not self.text.strip():
                 self.finished.emit("", None)
                 return
-            print(self.text)
+            
             translator = GoogleTranslator(
                 source=self.source_lang,
                 target=self.target_lang
