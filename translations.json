@@ -1,2 +1,9 @@
 [
+  {
+    "timestamp": "2025-06-09 19:10:45",
+    "source_text": "hello",
+    "translated_text": "привет",
+    "source_lang": "en",
+    "target_lang": "ru"
+  }
 ]

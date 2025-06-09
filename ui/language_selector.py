@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QLineEdit, QListWidget, QListWidgetItem
 )
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QCursor
 from PySide6.QtCore import Qt
 
 from constants import UI_TRANSLATIONS, LANGUAGES
@@ -30,6 +30,7 @@ class LanguageSelector(QWidget):
         close_btn = QPushButton()
         close_btn.setIcon(QIcon("icons/close.svg"))
         close_btn.setFixedSize(26, 26)
+        close_btn.setCursor(QCursor(Qt.PointingHandCursor))
         close_btn.clicked.connect(lambda: self.parent.stack.setCurrentWidget(self.parent.main_screen))
         top_bar.addWidget(close_btn)
 
@@ -81,6 +82,7 @@ class LanguageSelector(QWidget):
             #using correct lang names
             name = names.get(interface_lang, code)
             item = QListWidgetItem(name)
+            # item.setCursor(QCursor(Qt.PointingHandCursor))
             item.setData(Qt.UserRole, code)
             self.list_widget.addItem(item)
             if code == current_code:

@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QPushButton, QPlainTextEdit, QStatusBar, QStackedWidget, QLabel,
 )
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QCursor
 
 import gtts.lang
 
@@ -66,6 +66,9 @@ class TranslatorApp(QMainWindow):
         self.setGeometry(100, 100, 700, 300)
         layout = QVBoxLayout(self.main_screen)
 
+        self.setMaximumSize(1000, 500)
+        self.setMinimumSize(500, 200)
+
         #langs select
         lang_panel = QHBoxLayout()
         lang_panel.addStretch()
@@ -73,14 +76,17 @@ class TranslatorApp(QMainWindow):
         self.src_btn = QPushButton(LANGUAGES[self.source_lang_code][self.current_interface_lang])
         self.src_btn.setFixedWidth(150)
         self.src_btn.clicked.connect(lambda: self.show_language_selector('source'))
+        self.src_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
         swap_btn = QPushButton("⇄")
         swap_btn.setFixedWidth(40)
         swap_btn.clicked.connect(self.swap_languages)
+        swap_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.tgt_btn = QPushButton(LANGUAGES[self.target_lang_code][self.current_interface_lang])
         self.tgt_btn.setFixedWidth(150)
         self.tgt_btn.clicked.connect(lambda: self.show_language_selector('target'))
+        self.tgt_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
         lang_panel.addWidget(self.src_btn)
         lang_panel.addWidget(swap_btn)
@@ -96,6 +102,7 @@ class TranslatorApp(QMainWindow):
         self.source_text = QPlainTextEdit()
         self.source_text.setPlaceholderText(UI_TRANSLATIONS[self.current_interface_lang]['source_placeholder'])
         self.source_text.textChanged.connect(self.on_source_text_changed)
+        self.source_text.setStyleSheet("font-size: 16px;")
         left_layout.addWidget(self.source_text)
 
         src_buttons = QHBoxLayout()
@@ -103,15 +110,18 @@ class TranslatorApp(QMainWindow):
         self.src_speak_btn.setIcon(QIcon("icons/speaker.svg"))
         self.src_speak_btn.clicked.connect(self.speak_source)
         src_buttons.addWidget(self.src_speak_btn)
+        self.src_speak_btn.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.src_copy_btn = QPushButton()
         self.src_copy_btn.setIcon(QIcon("icons/copy.svg"))
         self.src_copy_btn.clicked.connect(lambda: self.copy_to_clipboard(self.source_text.toPlainText()))
+        self.src_copy_btn.setCursor(QCursor(Qt.PointingHandCursor))
         src_buttons.addWidget(self.src_copy_btn)
 
         self.clear_src_btn = QPushButton()
         self.clear_src_btn.setIcon(QIcon("icons/clear.svg"))
         self.clear_src_btn.clicked.connect(self.clear_source_text)
+        self.clear_src_btn.setCursor(QCursor(Qt.PointingHandCursor))
         src_buttons.addWidget(self.clear_src_btn)
 
         src_buttons.addStretch()
@@ -125,22 +135,26 @@ class TranslatorApp(QMainWindow):
         self.target_text = QPlainTextEdit()
         self.target_text.setPlaceholderText(UI_TRANSLATIONS[self.current_interface_lang]['target_placeholder'])
         self.target_text.setReadOnly(True)
+        self.target_text.setStyleSheet("font-size: 16px;")
         right_layout.addWidget(self.target_text)
 
         tgt_buttons = QHBoxLayout()
         self.tgt_speak_btn = QPushButton()
         self.tgt_speak_btn.setIcon(QIcon("icons/speaker.svg"))
         self.tgt_speak_btn.clicked.connect(self.speak_target)
+        self.tgt_speak_btn.setCursor(QCursor(Qt.PointingHandCursor))
         tgt_buttons.addWidget(self.tgt_speak_btn)
 
         self.tgt_copy_btn = QPushButton()
         self.tgt_copy_btn.setIcon(QIcon("icons/copy.svg"))
         self.tgt_copy_btn.clicked.connect(lambda: self.copy_to_clipboard(self.target_text.toPlainText()))
+        self.tgt_copy_btn.setCursor(QCursor(Qt.PointingHandCursor))
         tgt_buttons.addWidget(self.tgt_copy_btn)
 
         self.history_btn = QPushButton()
         self.history_btn.setIcon(QIcon("icons/history.svg"))
         self.history_btn.clicked.connect(self.show_history)
+        self.history_btn.setCursor(QCursor(Qt.PointingHandCursor))
         tgt_buttons.addWidget(self.history_btn)
 
         tgt_buttons.addStretch()
@@ -159,6 +173,9 @@ class TranslatorApp(QMainWindow):
 
         self.btn_ru = QPushButton('Русский')
         self.btn_en = QPushButton('English')
+        self.btn_ru.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btn_en.setCursor(QCursor(Qt.PointingHandCursor))
+
         self.btn_ru.setStyleSheet('font-size: 11px; min-width: 60px;')
         self.btn_en.setStyleSheet('font-size: 11px; min-width: 60px;')
         self.btn_ru.clicked.connect(lambda: self.change_interface_lang('ru'))
@@ -222,6 +239,10 @@ class TranslatorApp(QMainWindow):
     def on_source_text_changed(self):
         self.translation_timer.start(500)
         self.update_speaker_buttons()
+
+        if not self.source_text.toPlainText().strip():
+            self.target_text.clear()
+
 
     def do_translation(self):
         text = self.source_text.toPlainText()

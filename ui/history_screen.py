@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QScrollArea, QFrame, QPlainTextEdit
 )
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QCursor
 from PySide6.QtCore import Qt
 
 from constants import UI_TRANSLATIONS, LANGUAGES
@@ -28,12 +28,14 @@ class HistoryScreen(QWidget):
         self.clear_btn.setIcon(QIcon("icons/trash.svg"))
         self.clear_btn.clicked.connect(self.parent.clear_history)
         self.clear_btn.setEnabled(False)
+        self.clear_btn.setCursor(QCursor(Qt.PointingHandCursor))
         top_bar.addWidget(self.clear_btn)
         
         close_btn = QPushButton()
         close_btn.setIcon(QIcon("icons/close.svg"))
         close_btn.setFixedSize(26, 26)
         close_btn.clicked.connect(lambda: self.parent.stack.setCurrentWidget(self.parent.main_screen))
+        close_btn.setCursor(QCursor(Qt.PointingHandCursor))
         top_bar.addWidget(close_btn)
 
         self.layout.addLayout(top_bar)
@@ -109,6 +111,8 @@ class HistoryScreen(QWidget):
             del_btn.setIcon(QIcon("icons/trash.svg"))
             del_btn.setFixedSize(22, 22)
             del_btn.clicked.connect(lambda _, i=idx: self.parent.delete_translation(i))
+            del_btn.setCursor(QCursor(Qt.PointingHandCursor))
+
             top.addWidget(del_btn)
             top.addStretch()
 
@@ -137,6 +141,7 @@ class HistoryScreen(QWidget):
             src_speak_btn.clicked.connect(
                 lambda _, txt=entry['source_text'], lang=entry['source_lang']: speak_text(txt, lang)
             )
+            src_speak_btn.setCursor(QCursor(Qt.PointingHandCursor))
             src_btns.addWidget(src_speak_btn)
 
             src_copy_btn = QPushButton()
@@ -145,6 +150,7 @@ class HistoryScreen(QWidget):
             src_copy_btn.clicked.connect(
                 lambda _, txt=entry['source_text']: self.parent.copy_to_clipboard(txt)
             )
+            src_copy_btn.setCursor(QCursor(Qt.PointingHandCursor))
             src_btns.addWidget(src_copy_btn)
             src_btns.addStretch(1)
 
@@ -166,6 +172,7 @@ class HistoryScreen(QWidget):
             tgt_speak_btn.clicked.connect(
                 lambda _, txt=entry['translated_text'], lang=entry['target_lang']: speak_text(txt, lang)
             )
+            tgt_speak_btn.setCursor(QCursor(Qt.PointingHandCursor))
             tgt_btns.addWidget(tgt_speak_btn)
 
             tgt_copy_btn = QPushButton()
@@ -174,6 +181,7 @@ class HistoryScreen(QWidget):
             tgt_copy_btn.clicked.connect(
                 lambda _, txt=entry['translated_text']: self.parent.copy_to_clipboard(txt)
             )
+            tgt_copy_btn.setCursor(QCursor(Qt.PointingHandCursor))
             tgt_btns.addWidget(tgt_copy_btn)
             tgt_btns.addStretch(1)
 
